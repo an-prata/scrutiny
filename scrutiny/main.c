@@ -1,4 +1,4 @@
-#include "scrutiny.h"
+#include "scrutiny.c"
 #include <string.h>
 
 #define A_SIZE 8
@@ -56,7 +56,7 @@ SCRUTINY_UNIT_TEST void string_test(void)
 
 int main()
 {
-    scrutiny_unit_test scrutiny_unit_tests[] = 
+    scrutiny_unit_test_t scrutiny_unit_tests[] = 
     {
         add_test,
         int_array_test,
