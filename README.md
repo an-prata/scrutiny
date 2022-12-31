@@ -1,0 +1,2 @@
+# scrutiny
+A simple, easy to use, and lightweight unit testing framework written in and for C. Just make test functions that take `void` parameters and return `void`. Add their pointers to an array of `scrutiny_unit_test_t`s (these are `typedef`s of `void (*func)(void)`) and terminate the array with a NULL pointer, pass this array into `scrutiny_run_tests()` as the only argument and you get instant test feedback.
