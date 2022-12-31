@@ -1,0 +1,4 @@
+# scrutiny
+A simple, easy to use, and lightweight unit testing framework written in and for C. Just make test functions that take `void` parameters and return `void`. Add their pointers to an array of `scrutiny_unit_test_t`s (these are `typedef`s of `void (*func)(void)`) and terminate the array with a NULL pointer, pass this array into `scrutiny_run_tests()` as the only argument and you get instant test feedback. The `scrutiny/main.c` source file is an example of this. 
+
+To add scrutiny to your own projects just include the header and compile with the given c source file. To run tests it may be benificial to use a `#ifdef` or similar switch out the `main()` function. Alternitavely you could create a seperate source directoy containing your tests, and include the code you want to test in that.
