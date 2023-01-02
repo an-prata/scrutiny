@@ -26,6 +26,8 @@
  * arguments to the function call for easier debugging.
  */
 
+#define scrutiny_assert_pass() scrutiny_report_assert_pass(__FILE__, __func__)
+#define scrutiny_assert_fail() scrutiny_report_assert_fail(__FILE__, __func__, __LINE__)
 #define scrutiny_assert_true(expression) scrutiny_report_assert_true(expression, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_false(expression) scrutiny_report_assert_false(expression, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_equal_char(expected, actual) scrutiny_report_assert_equal_char(expected, actual, __FILE__, __func__, __LINE__)
@@ -91,6 +93,8 @@ void scrutiny_run_tests(scrutiny_unit_test_t* scrutiny_unit_tests);
  * arguments with a custom string in case the default report is not enough.
  */
 
+void scrutiny_report_assert_pass(const char* file, const char* function); /* Automatically asserts case passing. */
+void scrutiny_report_assert_fail(const char* file, const char* function, size_t line); /* Automatically asserts case failure. */
 void scrutiny_report_assert_true(bool expression, const char* file, const char* function, size_t line); /* Checks if the boolean expression is true. */
 void scrutiny_report_assert_false(bool expression, const char* file, const char* function, size_t line); /* Checks if the boolean expression is false. */
 void scrutiny_report_assert_equal_char(char expected, char actual, const char* file, const char* function, size_t line); /* Checks if expected is equivilant to actual. */
@@ -159,6 +163,8 @@ static size_t failed_tests_length = 0;
 static size_t passed_tests_length = 0;
 static const char** failed_tests;
 static const char** passed_tests;
+static size_t test_files_length = 0;
+static const char** test_files;
 
 static bool compare_null_terminated_strings(const char* str0, const char* str1)
 {
@@ -219,6 +225,17 @@ static void failed_test_expand_and_add(const char* failed_test)
     failed_tests[failed_tests_length - 1] = failed_test;
 }
 
+static void test_file_expand_and_add(const char* test_file)
+{
+    for (size_t i = 0; i < test_files_length; i++)
+        if (compare_null_terminated_strings(test_files[i], test_file))
+            return;
+
+    test_files_length++;
+    test_files = realloc(test_files, test_files_length * sizeof(char*));
+    test_files[test_files_length - 1] = test_file;
+}
+
 static void failed_test_print_failure(const char* expected, const char* actual, const char* file, const char* function, size_t line, const char* assert)
 {
     printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n", file, function, assert, line);
@@ -254,21 +271,39 @@ void scrutiny_run_tests(scrutiny_unit_test_t* scrutiny_unit_tests)
     long double percent_cases_passed = ((long double)passed_cases / (long double)(passed_cases + failed_cases)) * 100.0;
     long double percent_cases_failed = ((long double)failed_cases / (long double)(passed_cases + failed_cases)) * 100.0;
 
-    if (passed_tests_length > 0)
+    printf("\nScrutiny ran %zu test cases, from %zu tests, in %zu files.\n", failed_cases + passed_cases, failed_tests_length + passed_tests_length, test_files_length);
+
+    if (passed_cases > 0)
     {
         printf("\n(" SCRUTINY_TEXT_GREEN "" SCRUTINY_TEXT_NORMAL ") %zu of %zu tests passed (%2.1Lf%%).", passed_tests_length, tests_count, percent_passed);
         printf("\t(" SCRUTINY_TEXT_GREEN "" SCRUTINY_TEXT_NORMAL ") %zu of %zu test cases passed (%2.1Lf%%).\n", passed_cases, passed_cases + failed_cases, percent_cases_passed);
     }
 
-    if (failed_tests_length > 0)
+    if (failed_cases> 0)
     {
         printf("(" SCRUTINY_TEXT_RED "x" SCRUTINY_TEXT_NORMAL ") %zu of %zu tests failed (%2.1Lf%%).", failed_tests_length, tests_count, percent_failed);
         printf("\t(" SCRUTINY_TEXT_RED "x" SCRUTINY_TEXT_NORMAL ") %zu of %zu test cases failed (%2.1Lf%%).\n", failed_cases, failed_cases + passed_cases, percent_cases_failed);
     }
 }
 
+void scrutiny_report_assert_pass(const char* file, const char* function)
+{
+    test_file_expand_and_add(file);
+    succeeded_test_expand_and_add(function);
+}
+
+void scrutiny_report_assert_fail(const char* file, const char* function, size_t line)
+{
+    test_file_expand_and_add(file);
+    succeeded_test_contract_and_remove(function);
+    failed_test_expand_and_add(function);
+    printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n", file, function, __func__, line);
+}
+
 void scrutiny_report_assert_true(bool expression, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (!expression)
     {
         succeeded_test_contract_and_remove(function);
@@ -282,6 +317,8 @@ void scrutiny_report_assert_true(bool expression, const char* file, const char* 
 
 void scrutiny_report_assert_false(bool expression, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expression)
     {
         succeeded_test_contract_and_remove(function);
@@ -295,6 +332,8 @@ void scrutiny_report_assert_false(bool expression, const char* file, const char*
 
 void scrutiny_report_assert_equal_char(char expected, char actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -308,6 +347,8 @@ void scrutiny_report_assert_equal_char(char expected, char actual, const char* f
 
 void scrutiny_report_assert_equal_unsigned_char(unsigned char expected, unsigned char actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -321,6 +362,8 @@ void scrutiny_report_assert_equal_unsigned_char(unsigned char expected, unsigned
 
 void scrutiny_report_assert_equal_short(short expected, short actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -334,6 +377,8 @@ void scrutiny_report_assert_equal_short(short expected, short actual, const char
 
 void scrutiny_report_assert_equal_int(int expected, int actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -347,6 +392,8 @@ void scrutiny_report_assert_equal_int(int expected, int actual, const char* file
 
 void scrutiny_report_assert_equal_long(long expected, long actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -360,6 +407,8 @@ void scrutiny_report_assert_equal_long(long expected, long actual, const char* f
 
 void scrutiny_report_assert_equal_long_long(long long expected, long long actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -373,6 +422,8 @@ void scrutiny_report_assert_equal_long_long(long long expected, long long actual
 
 void scrutiny_report_assert_equal_unsigned_short(unsigned short expected, unsigned short actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -386,6 +437,8 @@ void scrutiny_report_assert_equal_unsigned_short(unsigned short expected, unsign
 
 void scrutiny_report_assert_equal_unsigned_int(unsigned int expected, unsigned int actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -399,6 +452,8 @@ void scrutiny_report_assert_equal_unsigned_int(unsigned int expected, unsigned i
 
 void scrutiny_report_assert_equal_unsigned_long(unsigned long expected, unsigned long actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -412,6 +467,8 @@ void scrutiny_report_assert_equal_unsigned_long(unsigned long expected, unsigned
 
 void scrutiny_report_assert_equal_unsigned_long_long(unsigned long long expected, unsigned long long actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -425,6 +482,8 @@ void scrutiny_report_assert_equal_unsigned_long_long(unsigned long long expected
 
 void scrutiny_report_assert_equal_float(float expected, float actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -438,6 +497,8 @@ void scrutiny_report_assert_equal_float(float expected, float actual, const char
 
 void scrutiny_report_assert_equal_double(double expected, double actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -451,6 +512,8 @@ void scrutiny_report_assert_equal_double(double expected, double actual, const c
 
 void scrutiny_report_assert_equal_long_double(long double expected, long double actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -464,6 +527,8 @@ void scrutiny_report_assert_equal_long_double(long double expected, long double 
 
 void scrutiny_report_assert_equal_int8_t(int8_t expected, int8_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -477,6 +542,8 @@ void scrutiny_report_assert_equal_int8_t(int8_t expected, int8_t actual, const c
 
 void scrutiny_report_assert_equal_int16_t(int16_t expected, int16_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -490,6 +557,8 @@ void scrutiny_report_assert_equal_int16_t(int16_t expected, int16_t actual, cons
 
 void scrutiny_report_assert_equal_int32_t(int32_t expected, int32_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -503,6 +572,8 @@ void scrutiny_report_assert_equal_int32_t(int32_t expected, int32_t actual, cons
 
 void scrutiny_report_assert_equal_int64_t(int64_t expected, int64_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -516,6 +587,8 @@ void scrutiny_report_assert_equal_int64_t(int64_t expected, int64_t actual, cons
 
 void scrutiny_report_assert_equal_int_fast8_t(int_fast8_t expected, int_fast8_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -529,6 +602,8 @@ void scrutiny_report_assert_equal_int_fast8_t(int_fast8_t expected, int_fast8_t 
 
 void scrutiny_report_assert_equal_int_fast16_t(int_fast16_t expected, int_fast16_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -542,6 +617,8 @@ void scrutiny_report_assert_equal_int_fast16_t(int_fast16_t expected, int_fast16
 
 void scrutiny_report_assert_equal_int_fast32_t(int_fast32_t expected, int_fast32_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -555,6 +632,8 @@ void scrutiny_report_assert_equal_int_fast32_t(int_fast32_t expected, int_fast32
 
 void scrutiny_report_assert_equal_int_fast64_t(int_fast64_t expected, int_fast64_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -568,6 +647,8 @@ void scrutiny_report_assert_equal_int_fast64_t(int_fast64_t expected, int_fast64
 
 void scrutiny_report_assert_equal_int_least8_t(int_least8_t expected, int_least8_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -581,6 +662,8 @@ void scrutiny_report_assert_equal_int_least8_t(int_least8_t expected, int_least8
 
 void scrutiny_report_assert_equal_int_least16_t(int_least16_t expected, int_least16_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -594,6 +677,8 @@ void scrutiny_report_assert_equal_int_least16_t(int_least16_t expected, int_leas
 
 void scrutiny_report_assert_equal_int_least32_t(int_least32_t expected, int_least32_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -607,6 +692,8 @@ void scrutiny_report_assert_equal_int_least32_t(int_least32_t expected, int_leas
 
 void scrutiny_report_assert_equal_int_least64_t(int_least64_t expected, int_least64_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -620,6 +707,8 @@ void scrutiny_report_assert_equal_int_least64_t(int_least64_t expected, int_leas
 
 void scrutiny_report_assert_equal_uint8_t(uint8_t expected, uint8_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -633,6 +722,8 @@ void scrutiny_report_assert_equal_uint8_t(uint8_t expected, uint8_t actual, cons
 
 void scrutiny_report_assert_equal_uint16_t(uint16_t expected, uint16_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -646,6 +737,8 @@ void scrutiny_report_assert_equal_uint16_t(uint16_t expected, uint16_t actual, c
 
 void scrutiny_report_assert_equal_uint32_t(uint32_t expected, uint32_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -659,6 +752,8 @@ void scrutiny_report_assert_equal_uint32_t(uint32_t expected, uint32_t actual, c
 
 void scrutiny_report_assert_equal_uint64_t(uint64_t expected, uint64_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -672,6 +767,8 @@ void scrutiny_report_assert_equal_uint64_t(uint64_t expected, uint64_t actual, c
 
 void scrutiny_report_assert_equal_uint_fast8_t(uint_fast8_t expected, uint_fast8_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -685,6 +782,8 @@ void scrutiny_report_assert_equal_uint_fast8_t(uint_fast8_t expected, uint_fast8
 
 void scrutiny_report_assert_equal_uint_fast16_t(uint_fast16_t expected, uint_fast16_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -698,6 +797,8 @@ void scrutiny_report_assert_equal_uint_fast16_t(uint_fast16_t expected, uint_fas
 
 void scrutiny_report_assert_equal_uint_fast32_t(uint_fast32_t expected, uint_fast32_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -711,6 +812,8 @@ void scrutiny_report_assert_equal_uint_fast32_t(uint_fast32_t expected, uint_fas
 
 void scrutiny_report_assert_equal_uint_fast64_t(uint_fast64_t expected, uint_fast64_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -724,6 +827,8 @@ void scrutiny_report_assert_equal_uint_fast64_t(uint_fast64_t expected, uint_fas
 
 void scrutiny_report_assert_equal_uint_least8_t(uint_least8_t expected, uint_least8_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -737,6 +842,8 @@ void scrutiny_report_assert_equal_uint_least8_t(uint_least8_t expected, uint_lea
 
 void scrutiny_report_assert_equal_uint_least16_t(uint_least16_t expected, uint_least16_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -750,6 +857,8 @@ void scrutiny_report_assert_equal_uint_least16_t(uint_least16_t expected, uint_l
 
 void scrutiny_report_assert_equal_uint_least32_t(uint_least32_t expected, uint_least32_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -763,6 +872,8 @@ void scrutiny_report_assert_equal_uint_least32_t(uint_least32_t expected, uint_l
 
 void scrutiny_report_assert_equal_uint_least64_t(uint_least64_t expected, uint_least64_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -776,6 +887,8 @@ void scrutiny_report_assert_equal_uint_least64_t(uint_least64_t expected, uint_l
 
 void scrutiny_report_assert_equal_intptr_t(intptr_t expected, intptr_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -789,6 +902,8 @@ void scrutiny_report_assert_equal_intptr_t(intptr_t expected, intptr_t actual, c
 
 void scrutiny_report_assert_equal_intmax_t(intmax_t expected, intmax_t actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -802,6 +917,8 @@ void scrutiny_report_assert_equal_intmax_t(intmax_t expected, intmax_t actual, c
 
 void scrutiny_report_assert_equal_ptr(void* expected, void* actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (expected != actual)
     {
         succeeded_test_contract_and_remove(function);
@@ -815,6 +932,8 @@ void scrutiny_report_assert_equal_ptr(void* expected, void* actual, const char* 
 
 void scrutiny_report_assert_equal_ptr_data(void* expected, void* actual, size_t struct_size, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     uint8_t* expected_bytes = (uint8_t*)expected;
     uint8_t* actual_bytes = (uint8_t*)actual;
 
@@ -836,6 +955,8 @@ void scrutiny_report_assert_equal_ptr_data(void* expected, void* actual, size_t 
 
 void scrutiny_report_assert_equal_array(void* expected, void* actual, size_t sizeof_type, size_t array_length, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     uint8_t* expected_bytes = (uint8_t*)expected;
     uint8_t* actual_bytes = (uint8_t*)actual;
 
@@ -856,6 +977,8 @@ void scrutiny_report_assert_equal_array(void* expected, void* actual, size_t siz
 
 void scrutiny_report_assert_equal_string(char* expected, char* actual, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     if (!compare_null_terminated_strings(expected, actual))
     {
         succeeded_test_contract_and_remove(function);
@@ -869,6 +992,8 @@ void scrutiny_report_assert_equal_string(char* expected, char* actual, const cha
 
 void scrutiny_report_assert_equal_non_terminated_string(char* expected, char* actual, size_t size, const char* file, const char* function, size_t line)
 {
+    test_file_expand_and_add(file);
+
     for (size_t i = 0; i < size; i++)
     {
         if (expected[i] != actual[i])
