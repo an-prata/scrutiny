@@ -76,6 +76,7 @@
 #define scrutiny_assert_equal_non_terminated_string(expected, actual, size) scrutiny_report_assert_equal_non_terminated_string(expected, actual, size, __FILE__, __func__, __LINE__)
 
 typedef FILE file_t;
+typedef int enum_value_t;
 typedef void (*scrutiny_unit_test_t)(void);
 
 /**
@@ -974,6 +975,21 @@ void scrutiny_report_assert_equal_intptr_t(intptr_t expected, intptr_t actual, c
 }
 
 void scrutiny_report_assert_equal_intmax_t(intmax_t expected, intmax_t actual, const char* file, const char* function, size_t line)
+{
+    test_file_expand_and_add(file);
+
+    if (expected != actual)
+    {
+        succeeded_test_contract_and_remove(function);
+        failed_test_expand_and_add(function);
+        failed_test_print_failure_unsigned_integer(expected, actual, file, function, line, __func__);
+        return;
+    }
+
+    succeeded_test_expand_and_add(function);
+}
+
+void scrutiny_report_assert_equal_enum(enum_value_t expected, enum_value_t actual, const char* file, const char* function, size_t line)
 {
     test_file_expand_and_add(file);
 
