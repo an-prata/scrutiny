@@ -75,6 +75,7 @@
 #define scrutiny_assert_equal_string(expected, actual) scrutiny_report_assert_equal_string(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_equal_non_terminated_string(expected, actual, size) scrutiny_report_assert_equal_non_terminated_string(expected, actual, size, __FILE__, __func__, __LINE__)
 
+typedef FILE file_t;
 typedef void (*scrutiny_unit_test_t)(void);
 
 /**
@@ -85,6 +86,28 @@ typedef void (*scrutiny_unit_test_t)(void);
  *                            should be a NULL pointer to terminate the array.
  */
 void scrutiny_run_tests(scrutiny_unit_test_t* scrutiny_unit_tests);
+
+/**
+ * Outputs test results to the given file. Tests must be run before outputting.
+ *
+ * @param out_file The file to output to.
+ *
+ * @return 0 on success, 1 if out_file is NULL, and -1 if file error indicator
+ *         is set by the end of the function.
+ */
+int scrutiny_output_test_results(file_t* out_file);
+
+/**
+ * Outputs test results to the given file. Tests must be run before outputting.
+ * Output here is designed to be easier to parse using a script or other
+ * program.
+ *
+ * @param out_file The file to output to.
+ *
+ * @return 0 on success, 1 if out_file is NULL, and -1 if file error indicator
+ *         is set by the end of the function.
+ */
+int scrutiny_output_test_results_parsable(file_t* out_file);
 
 /*
  * The following functions, while not intended to be used directly, will not
@@ -238,21 +261,21 @@ static void test_file_expand_and_add(const char* test_file)
 
 static void failed_test_print_failure(const char* expected, const char* actual, const char* file, const char* function, size_t line, const char* assert)
 {
-    printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n", file, function, assert, line);
+    printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, function, assert, line);
     printf("\tExpected:  %s\n", expected);
     printf("\tActual:    %s\n", actual);
 }
 
 static void failed_test_print_failure_unsigned_integer(uint64_t expected, uint64_t actual, const char* file, const char* function, size_t line, const char* assert)
 {
-    printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n", file, function, assert, line);
+    printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, function, assert, line);
     printf("\tExpected:  %zu\n", expected);
     printf("\tActual:    %zu\n", actual);
 }
 
 static void failed_test_print_failure_signed_integer(int64_t expected, int64_t actual, const char* file, const char* function, size_t line, const char* assert)
 {
-    printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n", file, function, assert, line);
+    printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, function, assert, line);
     printf("\tExpected:  %zi\n", expected);
     printf("\tActual:    %zi\n", actual);
 }
@@ -265,25 +288,75 @@ void scrutiny_run_tests(scrutiny_unit_test_t* scrutiny_unit_tests)
     
     for (size_t test = 0; test < tests_count; test++)
         scrutiny_unit_tests[test]();
+}
 
-    long double percent_passed = ((long double)passed_tests_length / (long double)tests_count) * 100.0;
-    long double percent_failed = ((long double)failed_tests_length / (long double)tests_count) * 100.0;
+int scrutiny_output_test_results(file_t* out_file)
+{
+    if (out_file == NULL)
+        return 1;
+
+    long double percent_passed = ((long double)passed_tests_length / (long double)(passed_tests_length + failed_tests_length)) * 100.0;
+    long double percent_failed = ((long double)failed_tests_length / (long double)(passed_tests_length + failed_tests_length)) * 100.0;
     long double percent_cases_passed = ((long double)passed_cases / (long double)(passed_cases + failed_cases)) * 100.0;
     long double percent_cases_failed = ((long double)failed_cases / (long double)(passed_cases + failed_cases)) * 100.0;
 
-    printf("\nScrutiny ran %zu test cases, from %zu tests, in %zu files.\n", failed_cases + passed_cases, failed_tests_length + passed_tests_length, test_files_length);
+    fprintf(out_file, "Scrutiny ran %zu test cases, from %zu tests, in %zu files.\n\n", failed_cases + passed_cases, failed_tests_length + passed_tests_length, test_files_length);
+    fprintf(out_file, "Failed tests:\n");
+
+    for (size_t i = 0; i < failed_tests_length; i++)
+        fprintf(out_file, SCRUTINY_TEXT_ITALIC "\t%s\n" SCRUTINY_TEXT_NORMAL, failed_tests[i]);
 
     if (passed_cases > 0)
     {
-        printf("\n(" SCRUTINY_TEXT_GREEN "" SCRUTINY_TEXT_NORMAL ") %zu of %zu tests passed (%2.1Lf%%).", passed_tests_length, tests_count, percent_passed);
-        printf("\t(" SCRUTINY_TEXT_GREEN "" SCRUTINY_TEXT_NORMAL ") %zu of %zu test cases passed (%2.1Lf%%).\n", passed_cases, passed_cases + failed_cases, percent_cases_passed);
+        fprintf(out_file, "\n(" SCRUTINY_TEXT_GREEN "" SCRUTINY_TEXT_NORMAL ") %zu of %zu tests passed (%2.1Lf%%).", passed_tests_length, passed_tests_length + failed_tests_length, percent_passed);
+        fprintf(out_file, "\t(" SCRUTINY_TEXT_GREEN "" SCRUTINY_TEXT_NORMAL ") %zu of %zu test cases passed (%2.1Lf%%).\n", passed_cases, passed_cases + failed_cases, percent_cases_passed);
     }
 
-    if (failed_cases> 0)
+    if (failed_cases > 0)
     {
-        printf("(" SCRUTINY_TEXT_RED "x" SCRUTINY_TEXT_NORMAL ") %zu of %zu tests failed (%2.1Lf%%).", failed_tests_length, tests_count, percent_failed);
-        printf("\t(" SCRUTINY_TEXT_RED "x" SCRUTINY_TEXT_NORMAL ") %zu of %zu test cases failed (%2.1Lf%%).\n", failed_cases, failed_cases + passed_cases, percent_cases_failed);
+        fprintf(out_file, "(" SCRUTINY_TEXT_RED "x" SCRUTINY_TEXT_NORMAL ") %zu of %zu tests failed (%2.1Lf%%).", failed_tests_length, passed_tests_length + failed_tests_length, percent_failed);
+        fprintf(out_file, "\t(" SCRUTINY_TEXT_RED "x" SCRUTINY_TEXT_NORMAL ") %zu of %zu test cases failed (%2.1Lf%%).\n", failed_cases, failed_cases + passed_cases, percent_cases_failed);
     }
+
+    fflush(out_file);
+
+    if (ferror(out_file))
+        return -1;
+    
+    return 0;
+}
+
+int scrutiny_output_test_results_parsable(file_t* out_file)
+{
+    if (out_file == NULL)
+        return 1;
+
+    long double percent_passed = ((long double)passed_tests_length / (long double)(passed_tests_length + failed_tests_length)) * 100.0;
+    long double percent_failed = ((long double)failed_tests_length / (long double)(passed_tests_length + failed_tests_length)) * 100.0;
+    long double percent_cases_passed = ((long double)passed_cases / (long double)(passed_cases + failed_cases)) * 100.0;
+    long double percent_cases_failed = ((long double)failed_cases / (long double)(passed_cases + failed_cases)) * 100.0;
+
+    fprintf(out_file, "ran %zu cases, %zu tests, %zu files\n\n", failed_cases + passed_cases, failed_tests_length + passed_tests_length, test_files_length);
+
+    fprintf(out_file, "cases:\n");
+    fprintf(out_file, "%zu/%zu passed (%2.1Lf%%)\n", passed_cases, passed_cases + failed_cases, percent_cases_passed);
+    fprintf(out_file, "%zu/%zu failed (%2.1Lf%%)\n\n", failed_cases, failed_cases + passed_cases, percent_cases_failed);
+
+    fprintf(out_file, "tests:\n");
+    fprintf(out_file, "%zu/%zu passed (%2.1Lf%%)\n", passed_tests_length, passed_tests_length + failed_tests_length, percent_passed);
+    fprintf(out_file, "%zu/%zu failed (%2.1Lf%%)\n\n", failed_tests_length, passed_tests_length + failed_tests_length, percent_failed);
+
+    fprintf(out_file, "failed tests:\n");
+
+    for (size_t i = 0; i < failed_tests_length; i++)
+        fprintf(out_file, "%s\n", failed_tests[i]);
+
+    fflush(out_file);
+
+    if (ferror(out_file))
+        return -1;
+    
+    return 0;
 }
 
 void scrutiny_report_assert_pass(const char* file, const char* function)
@@ -297,7 +370,7 @@ void scrutiny_report_assert_fail(const char* file, const char* function, size_t 
     test_file_expand_and_add(file);
     succeeded_test_contract_and_remove(function);
     failed_test_expand_and_add(function);
-    printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n", file, function, __func__, line);
+    printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, function, __func__, line);
 }
 
 void scrutiny_report_assert_true(bool expression, const char* file, const char* function, size_t line)
@@ -308,7 +381,7 @@ void scrutiny_report_assert_true(bool expression, const char* file, const char* 
     {
         succeeded_test_contract_and_remove(function);
         failed_test_expand_and_add(function);
-        printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n", file, function, __func__, line);
+        printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, function, __func__, line);
         return;
     }
 
@@ -323,7 +396,7 @@ void scrutiny_report_assert_false(bool expression, const char* file, const char*
     {
         succeeded_test_contract_and_remove(function);
         failed_test_expand_and_add(function);
-        printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n", file, function, __func__, line);
+        printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, function, __func__, line);
         return;
     }
 
@@ -943,7 +1016,7 @@ void scrutiny_report_assert_equal_ptr_data(void* expected, void* actual, size_t 
         {
             succeeded_test_contract_and_remove(function);
             failed_test_expand_and_add(function);
-            printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n", file, function, __func__, line);
+            printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, function, __func__, line);
             printf("\tExpected:  %u at byte %zu\n", expected_bytes[i], i);
             printf("\tActual:    %u\n", actual_bytes[i]);
             return;
@@ -966,7 +1039,7 @@ void scrutiny_report_assert_equal_array(void* expected, void* actual, size_t siz
         {
             succeeded_test_contract_and_remove(function);
             failed_test_expand_and_add(function);
-            printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n", file, function, __func__, line);
+            printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, function, __func__, line);
             printf("\tDifference at index: %zu\n", byte / sizeof_type);
             return;
         }
@@ -1000,7 +1073,7 @@ void scrutiny_report_assert_equal_non_terminated_string(char* expected, char* ac
         {
             succeeded_test_contract_and_remove(function);
             failed_test_expand_and_add(function);
-            printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n", file, function, __func__, line);
+            printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, function, __func__, line);
             printf("\tExpected:  %c at index %zu\n", expected[i], i);
             printf("\tActual:    %c\n", actual[i]);
             return;
