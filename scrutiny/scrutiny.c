@@ -18,7 +18,7 @@
  * Defined for convinience and code clarity, beyond that this definition
  * serves no purpose.
  */
-#define SCRUTINY_UNIT_TEST
+#define SCRUTINY_UNIT_TEST void
 
 /* 
  * This collection of macros serves only to simplify assert calls by
