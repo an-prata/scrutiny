@@ -1,10 +1,10 @@
-#include "scrutiny.c"
+#include "scrutiny.h"
 #include <string.h>
 
 #define A_SIZE 8
 #define B_SIZE 7
 
-SCRUTINY_UNIT_TEST void add_test(void)
+SCRUTINY_UNIT_TEST add_test(void)
 {
     int a = 3;
     int b = 5;
@@ -13,7 +13,7 @@ SCRUTINY_UNIT_TEST void add_test(void)
     scrutiny_assert_equal_int(a + b, expected);
 }
 
-SCRUTINY_UNIT_TEST void int_array_test(void)
+SCRUTINY_UNIT_TEST int_array_test(void)
 {
     uint8_t a[B_SIZE] = { 2, 6, 1, 27, 86, 3, 3 };
     uint8_t b[B_SIZE] = { 2, 6, 1, 27, 86, 3, 3 };
@@ -22,7 +22,7 @@ SCRUTINY_UNIT_TEST void int_array_test(void)
         scrutiny_assert_equal_uint8_t(a[i], b[i]);
 }
 
-SCRUTINY_UNIT_TEST void void_ptr_data_test(void)
+SCRUTINY_UNIT_TEST void_ptr_data_test(void)
 {
     const size_t size = 8;
 
@@ -37,7 +37,7 @@ SCRUTINY_UNIT_TEST void void_ptr_data_test(void)
     scrutiny_assert_equal_ptr_data(a, b, size);
 }
 
-SCRUTINY_UNIT_TEST void bool_test(void)
+SCRUTINY_UNIT_TEST bool_test(void)
 {
     scrutiny_assert_true(1 == 1);
     scrutiny_assert_false(1 == 2);
@@ -46,7 +46,7 @@ SCRUTINY_UNIT_TEST void bool_test(void)
     scrutiny_assert_fail();
 }
 
-SCRUTINY_UNIT_TEST void string_test(void)
+SCRUTINY_UNIT_TEST string_test(void)
 {
     char* str0 = "yeetus";
     char* str1 = "yeetus";
