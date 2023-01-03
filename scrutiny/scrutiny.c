@@ -133,7 +133,9 @@ int scrutiny_output_test_results(file_t* out_file)
     long double percent_cases_failed = ((long double)failed_cases / (long double)(passed_cases + failed_cases)) * 100.0;
 
     fprintf(out_file, "Scrutiny ran %zu test cases, from %zu tests, in %zu files.\n\n", failed_cases + passed_cases, failed_tests_length + passed_tests_length, test_files_length);
-    fprintf(out_file, "Failed tests:\n");
+
+    if (failed_tests_length > 0)
+        fprintf(out_file, "Failed tests:\n");
 
     for (size_t i = 0; i < failed_tests_length; i++)
         fprintf(out_file, SCRUTINY_TEXT_ITALIC "\t%s\n" SCRUTINY_TEXT_NORMAL, failed_tests[i]);
