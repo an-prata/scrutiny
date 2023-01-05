@@ -10,12 +10,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <time.h>
 
 /* 
- * Defined for convinience and code clarity, beyond that this definition
- * serves no purpose.
+ * Defined for convinience and code clarity, beyond that these definitions
+ * serve no purpose.
  */
+
 #define SCRUTINY_UNIT_TEST void
+#define SCRUTINY_BENCHMARK void
 
 /* 
  * This collection of macros serves only to simplify assert calls by
@@ -73,38 +76,95 @@
 #define scrutiny_assert_equal_string(expected, actual) scrutiny_report_assert_equal_string(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_equal_non_terminated_string(expected, actual, size) scrutiny_report_assert_equal_non_terminated_string(expected, actual, size, __FILE__, __func__, __LINE__)
 
+/* 
+ * Use these macros in such a way that your benchmark may setup before starting
+ * the timer and free resources after stopping it.
+ */
+
+#define scrutiny_benchamrk_start() clock_t _scrutiny_benchmark_start_time = clock()
+#define scrutiny_benchmark_finish() scrutiny_report_benchmark_time(clock() - _scrutiny_benchmark_start_time, __FILE__, __func__, __LINE__)
+
 typedef FILE file_t;
 typedef int enum_value_t;
 typedef void (*scrutiny_unit_test_t)(void);
+typedef void (*scrutiny_benchmark_t)(void);
+typedef struct scrutiny_test_results_s scrutiny_test_results_t;
+typedef struct scrutiny_benchmark_results_s scrutiny_benchmark_results_t;
+
+struct scrutiny_test_results_s
+{
+    size_t failed_cases;
+    size_t passed_cases;
+    size_t failed_tests;
+    size_t passed_tests;
+    size_t files;
+    const char** failed_test_names;
+    const char** passed_test_names;
+    const char** file_names;
+};
+
+struct scrutiny_benchmark_results_s
+{
+    size_t benchmarks;
+    clock_t* benchmark_times;
+    const char** benchmark_names;
+    const char** file_names;
+};
 
 /**
  * Runs all given test functions and prints the results.
  *
- * @param scrutiny_unit_tests An array of functions taking void parameters and
- *                            returning void. The last element of this array
- *                            should be a NULL pointer to terminate the array.
+ * scrutiny_unit_tests should be an array of functions taking void parameters
+ * and returning void. The last element of this array should be a NULL pointer
+ * to terminate the array.
  */
 void scrutiny_run_tests(scrutiny_unit_test_t* scrutiny_unit_tests);
+
+/*
+ * Run all given benchmars in the array. The last element of the array should
+ * be a terminating NULL pointer.
+ */
+void scrutiny_run_benchmarks(scrutiny_benchmark_t* scrutiny_benchmarks);
+
+/*
+ * Like scrutiny_run_benchmarks() but runs all benchmarks multiple times.
+ */
+void scrutiny_run_benchmarks_n_times(scrutiny_benchmark_t* scrutiny_benchmarks, size_t n);
+
+/*
+ * Gets the results of previously run tests.
+ */
+scrutiny_test_results_t scrutiny_get_test_results(void);
+
+/*
+ * Gets the results of previously run benchmarks.
+ */
+scrutiny_benchmark_results_t scrutiny_get_benchmark_results(void);
 
 /**
  * Outputs test results to the given file. Tests must be run before outputting.
  *
- * @param out_file The file to output to.
- *
- * @return 0 on success, 1 if out_file is NULL, and -1 if file error indicator
- *         is set by the end of the function.
+ * Returns 0 on success, 1 if out_file is NULL, and -1 if file error indicator
+ * is set by the end of the function.
  */
 int scrutiny_output_test_results(file_t* out_file);
+
+/*
+ * Outputs benchmark results to the given file. Like with test output
+ * benchmarks must be run beforehand.
+ *
+ * Returns 0 on success, 1 of out_file is NULL, and -1 if file error indicator
+ * is set by the end of the function.
+ */
+int scrutiny_output_benchmark_results(file_t* out_file);
 
 /**
  * Outputs test results to the given file. Tests must be run before outputting.
  * Output here is designed to be easier to parse using a script or other
  * program.
  *
- * @param out_file The file to output to.
- *
- * @return 0 on success, 1 if out_file is NULL, and -1 if file error indicator
- *         is set by the end of the function.
+ * Returns 0 on success, 1 if out_file is NULL, and -1 if file error indicator
+ * is set by the end of the function.
  */
 int scrutiny_output_test_results_parsable(file_t* out_file);
 
@@ -164,6 +224,8 @@ void scrutiny_report_assert_equal_ptr_data(void* expected, void* actual, size_t 
 void scrutiny_report_assert_equal_array(void* expected, void* actual, size_t sizeof_type, size_t array_length, const char* file, const char* function, size_t line); /* Checks if the expected array and actual array are equal. */
 void scrutiny_report_assert_equal_string(char* expected, char* actual, const char* file, const char* function, size_t line); /* Checks if the two strings are equal. */
 void scrutiny_report_assert_equal_non_terminated_string(char* expected, char* actual, size_t size, const char* file, const char* function, size_t line); /* Checks if the two strings are equal. */
+
+void scrutiny_report_benchmark_time(clock_t time, const char* file, const char* function, size_t line); /* Records the given benchmark time. */
 
 #endif // SCRUTINY_H
 

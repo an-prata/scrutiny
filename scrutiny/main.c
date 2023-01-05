@@ -55,19 +55,41 @@ SCRUTINY_UNIT_TEST string_test(void)
     scrutiny_assert_equal_non_terminated_string(str0, str1, 6);
 }
 
+SCRUTINY_BENCHMARK loop_thousand(void)
+{
+    size_t total;
+
+    scrutiny_benchamrk_start();
+    {
+        for (size_t i = 0; i < 1000000; i++)
+            total += total + i;
+    }
+    scrutiny_benchmark_finish();
+}
+
 int main()
 {
-    scrutiny_unit_test_t scrutiny_unit_tests[] = 
+    // scrutiny_unit_test_t scrutiny_unit_tests[] = 
+    // {
+    //     add_test,
+    //     int_array_test,
+    //     void_ptr_data_test,
+    //     bool_test,
+    //     string_test,
+    //     NULL
+    // };
+
+    // scrutiny_run_tests(scrutiny_unit_tests);
+    // scrutiny_output_test_results_parsable(fopen("out.txt", "w"));
+
+
+    scrutiny_benchmark_t scrutiny_benchmarks[] =
     {
-        add_test,
-        int_array_test,
-        void_ptr_data_test,
-        bool_test,
-        string_test,
+        loop_thousand,
         NULL
     };
 
-    scrutiny_run_tests(scrutiny_unit_tests);
-    scrutiny_output_test_results_parsable(fopen("out.txt", "w"));
+    scrutiny_run_benchmarks_n_times(scrutiny_benchmarks, 64);
+    scrutiny_output_benchmark_results(stdout);
 }
 

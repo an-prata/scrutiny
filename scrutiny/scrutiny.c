@@ -12,14 +12,27 @@
 #define SCRUTINY_TEXT_BLUE "\033[0;44m"
 #define SCRUTINY_TEXT_RED "\033[0;31m"
 
+typedef struct in_progress_average_s in_progress_average_t;
+
+struct in_progress_average_s
+{
+    size_t divisor;
+    clock_t running_total;
+};
+
 static size_t failed_cases = 0;
 static size_t passed_cases = 0;
 static size_t failed_tests_length = 0;
 static size_t passed_tests_length = 0;
-static const char** failed_tests;
-static const char** passed_tests;
+static const char** failed_tests = NULL;
+static const char** passed_tests = NULL;
 static size_t test_files_length = 0;
-static const char** test_files;
+static const char** test_files = NULL;
+
+static size_t benchmarks = 0;
+static clock_t* benchmark_times = NULL;
+static const char** benchmark_names = NULL;
+static const char** benchmark_files = NULL;
 
 static bool compare_null_terminated_strings(const char* str0, const char* str1)
 {
@@ -91,6 +104,17 @@ static void test_file_expand_and_add(const char* test_file)
     test_files[test_files_length - 1] = test_file;
 }
 
+static void benchmark_run_expand_and_add(const char* name, const char* file, clock_t time)
+{
+    benchmarks++;
+    benchmark_names = realloc(benchmark_names, benchmarks * sizeof(char*));
+    benchmark_times = realloc(benchmark_times, benchmarks * sizeof(char*));
+    benchmark_files = realloc(benchmark_files, benchmarks * sizeof(char*));
+    benchmark_names[benchmarks - 1] = name;
+    benchmark_times[benchmarks - 1] = time;
+    benchmark_files[benchmarks - 1] = file;
+}
+
 static void failed_test_print_failure(const char* expected, const char* actual, const char* file, const char* function, size_t line, const char* assert)
 {
     printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, function, assert, line);
@@ -114,12 +138,49 @@ static void failed_test_print_failure_signed_integer(int64_t expected, int64_t a
 
 void scrutiny_run_tests(scrutiny_unit_test_t* scrutiny_unit_tests)
 {
-    size_t tests_count;
-    for (tests_count = 0; scrutiny_unit_tests[tests_count] != NULL; tests_count++);
-    printf("Running %zu scrutiny unit tests...\n", tests_count);
-    
-    for (size_t test = 0; test < tests_count; test++)
+    for (size_t test = 0; scrutiny_unit_tests[test] != NULL; test++)
         scrutiny_unit_tests[test]();
+}
+
+void scrutiny_run_benchmarks(scrutiny_benchmark_t* scrutiny_benchmarks)
+{
+    for (size_t benchmark = 0; scrutiny_benchmarks[benchmark] != NULL; benchmark++)
+        scrutiny_benchmarks[benchmark]();
+}
+
+void scrutiny_run_benchmarks_n_times(scrutiny_benchmark_t* scrutiny_benchmarks, size_t n)
+{
+    for (size_t benchmark = 0; scrutiny_benchmarks[benchmark] != NULL; benchmark++)
+        for (size_t i = 0; i < n; i++)
+            scrutiny_benchmarks[benchmark]();
+}
+
+scrutiny_test_results_t scrutiny_get_test_results(void)
+{
+    scrutiny_test_results_t test_results = 
+    {
+        .failed_cases = failed_cases,
+        .passed_cases = passed_cases,
+        .failed_tests = failed_tests_length,
+        .passed_tests = passed_tests_length,
+        .failed_test_names = failed_tests,
+        .passed_test_names = passed_tests
+    };
+
+    return test_results;
+}
+
+scrutiny_benchmark_results_t scrutiny_get_benchmark_results(void)
+{
+    scrutiny_benchmark_results_t benchmark_results = 
+    {
+        .benchmarks = benchmarks,
+        .benchmark_names = benchmark_names,
+        .benchmark_times = benchmark_times,
+        .file_names = benchmark_files
+    };
+
+    return benchmark_results;
 }
 
 int scrutiny_output_test_results(file_t* out_file)
@@ -160,25 +221,82 @@ int scrutiny_output_test_results(file_t* out_file)
     return 0;
 }
 
+int scrutiny_output_benchmark_results(file_t* out_file)
+{
+    if (out_file == NULL)
+        return 1;
+
+    size_t unique_benchmarks = 0;
+    in_progress_average_t* average_times = NULL;
+    const char** unique_benchmarks_names = NULL;
+
+    for (size_t benchmark = 0; benchmark < benchmarks; benchmark++)
+    {
+        bool unique = true;
+        size_t index_non_unique;
+
+        for (index_non_unique = 0; index_non_unique < unique_benchmarks; index_non_unique++)
+        {
+            if (compare_null_terminated_strings(benchmark_names[benchmark], unique_benchmarks_names[index_non_unique]))
+            {
+                unique = false;
+                break;
+            }
+        }
+
+        if (unique)
+        {
+            unique_benchmarks++;
+            unique_benchmarks_names = realloc(unique_benchmarks_names, unique_benchmarks * sizeof(char*));
+            average_times = realloc(average_times, unique_benchmarks * sizeof(in_progress_average_t));
+            unique_benchmarks_names[unique_benchmarks - 1] = benchmark_names[benchmark];
+            average_times[unique_benchmarks - 1].running_total = benchmark_times[benchmark];
+            average_times[unique_benchmarks - 1].divisor = 1;
+            continue;
+        }
+
+        average_times[index_non_unique].running_total += benchmark_times[benchmark];
+        average_times[index_non_unique].divisor++;
+    }
+
+    fprintf(out_file, "Scrutiny ran %zu unique benchmarks for a total of %zu benchmark runs.\n\n", unique_benchmarks, benchmarks);
+
+    for (size_t i = 0; i < unique_benchmarks; i++)
+    {
+        clock_t average_time = average_times[i].running_total / average_times[i].divisor;
+        long double average_seconds = (long double)average_time / (long double)CLOCKS_PER_SEC;
+
+        if (average_seconds < 0.1)
+            fprintf(out_file, SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL ": %.1Lf ms\n", unique_benchmarks_names[i], average_seconds * 1000);
+        else
+            fprintf(out_file, SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL ": %.3Lf s\n", unique_benchmarks_names[i], average_seconds);
+    }
+
+    if (ferror(out_file))
+        return -1;
+
+    return 0;
+}
+
 int scrutiny_output_test_results_parsable(file_t* out_file)
 {
     if (out_file == NULL)
         return 1;
 
-    long double percent_passed = ((long double)passed_tests_length / (long double)(passed_tests_length + failed_tests_length)) * 100.0;
-    long double percent_failed = ((long double)failed_tests_length / (long double)(passed_tests_length + failed_tests_length)) * 100.0;
-    long double percent_cases_passed = ((long double)passed_cases / (long double)(passed_cases + failed_cases)) * 100.0;
-    long double percent_cases_failed = ((long double)failed_cases / (long double)(passed_cases + failed_cases)) * 100.0;
+    double percent_passed = ((double)passed_tests_length / (double)(passed_tests_length + failed_tests_length)) * 100.0;
+    double percent_failed = ((double)failed_tests_length / (double)(passed_tests_length + failed_tests_length)) * 100.0;
+    double percent_cases_passed = ((double)passed_cases / (double)(passed_cases + failed_cases)) * 100.0;
+    double percent_cases_failed = ((double)failed_cases / (double)(passed_cases + failed_cases)) * 100.0;
 
     fprintf(out_file, "ran %zu cases, %zu tests, %zu files\n\n", failed_cases + passed_cases, failed_tests_length + passed_tests_length, test_files_length);
 
     fprintf(out_file, "cases:\n");
-    fprintf(out_file, "%zu/%zu passed (%2.1Lf%%)\n", passed_cases, passed_cases + failed_cases, percent_cases_passed);
-    fprintf(out_file, "%zu/%zu failed (%2.1Lf%%)\n\n", failed_cases, failed_cases + passed_cases, percent_cases_failed);
+    fprintf(out_file, "%zu/%zu passed (%2.1lf%%)\n", passed_cases, passed_cases + failed_cases, percent_cases_passed);
+    fprintf(out_file, "%zu/%zu failed (%2.1lf%%)\n\n", failed_cases, failed_cases + passed_cases, percent_cases_failed);
 
     fprintf(out_file, "tests:\n");
-    fprintf(out_file, "%zu/%zu passed (%2.1Lf%%)\n", passed_tests_length, passed_tests_length + failed_tests_length, percent_passed);
-    fprintf(out_file, "%zu/%zu failed (%2.1Lf%%)\n\n", failed_tests_length, passed_tests_length + failed_tests_length, percent_failed);
+    fprintf(out_file, "%zu/%zu passed (%2.1lf%%)\n", passed_tests_length, passed_tests_length + failed_tests_length, percent_passed);
+    fprintf(out_file, "%zu/%zu failed (%2.1lf%%)\n\n", failed_tests_length, passed_tests_length + failed_tests_length, percent_failed);
 
     fprintf(out_file, "failed tests:\n");
 
@@ -930,5 +1048,10 @@ void scrutiny_report_assert_equal_non_terminated_string(char* expected, char* ac
     }
 
     succeeded_test_expand_and_add(function);
+}
+
+void scrutiny_report_benchmark_time(clock_t time, const char* file, const char* function, size_t line)
+{
+    benchmark_run_expand_and_add(function, file, time);
 }
 
