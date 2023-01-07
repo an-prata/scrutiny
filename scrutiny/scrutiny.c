@@ -311,6 +311,20 @@ int scrutiny_output_test_results_parsable(file_t* out_file)
     return 0;
 }
 
+int scrutiny_output_benchmark_results_parsable(file_t* file)
+{
+    if (file == NULL)
+        return 1;
+
+    for (size_t i = 0; i < benchmarks; i++)
+        fprintf(file, "%s:%Lf\n", benchmark_names[i], (long double)benchmark_times[i] / (long double)CLOCKS_PER_SEC);
+    
+    if (ferror(file))
+        return -1;
+    
+    return 0;
+}
+
 void scrutiny_report_assert_pass(const char* file, const char* function)
 {
     test_file_expand_and_add(file);

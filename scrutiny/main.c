@@ -90,6 +90,6 @@ int main()
     };
 
     scrutiny_run_benchmarks_n_times(scrutiny_benchmarks, 64);
-    scrutiny_output_benchmark_results(stdout);
+    scrutiny_output_benchmark_results_parsable(stdout);
 }
 

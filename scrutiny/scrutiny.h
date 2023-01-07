@@ -169,6 +169,14 @@ int scrutiny_output_benchmark_results(file_t* out_file);
 int scrutiny_output_test_results_parsable(file_t* out_file);
 
 /*
+ * Outputs a more easily parsable text to the given file for benchmark results.
+ *
+ * Returns 0 on success, 1 if out_file is NULL, and -1 if file error indicator
+ * is set by the end of the function.
+ */
+int scrutiny_output_benchmark_results_parsable(file_t* file);
+
+/*
  * The following functions, while not intended to be used directly, will not
  * be a problem if used directly. In most cases the macros above should be used
  * but if many asserts are run in a loop it may be useful to replace one of the
