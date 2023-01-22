@@ -1,4 +1,6 @@
 #!/usr/bin/bash
 
-gcc -o bin/scrutiny-test scrutiny/scrutiny.c scrutiny/main.c
+mkdir -p build/
+gcc -c scrutiny/scrutiny.c -o build/scrutiny.o
+ar rcs build/scrutiny.a build/scrutiny.o
 
