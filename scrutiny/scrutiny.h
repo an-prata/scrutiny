@@ -72,8 +72,11 @@
 #define scrutiny_assert_equal_uint_least32_t(expected, actual) scrutiny_report_assert_equal_uint_least32_t(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_equal_uint_least64_t(expected, actual) scrutiny_report_assert_equal_uint_least64_t(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_equal_intptr_t(expected, actual) scrutiny_report_assert_equal_intptr_t(expected, actual, __FILE__, __func__, __LINE__)
+#define scrutiny_assert_equal_uintptr_t(expected, actual) scrutiny_report_assert_equal_uintptr_t(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_equal_intmax_t(expected, actual) scrutiny_report_assert_equal_intmax_t(expected, actual, __FILE__, __func__, __LINE__)
-#define scrutiny_assert_equal_size_t(expected, actual) scrutiny_report_asser_equal_size_t(expected, actual, __FILE__, __func__, __LINE__)
+#define scrutiny_assert_equal_uintmax_t(expected, actual) scrutiny_report_assert_equal_uintmax_t(expected, actual, __FILE__, __func__, __LINE__)
+#define scrutiny_assert_equal_size_t(expected, actual) scrutiny_report_assert_equal_size_t(expected, actual, __FILE__, __func__, __LINE__)
+#define scrutiny_assert_equal_ssize_t(expected, actual) scrutiny_report_assert_equal_ssize_t(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_equal_enum(expected, actual) scrutiny_report_assert_equal_enum(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_equal_ptr(expected, actual) scrutiny_report_assert_equal_ptr(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_equal_ptr_data(expected, actual, struct_size) scrutiny_report_assert_equal_ptr_data(expected, actual, struct_size, __FILE__, __func__, __LINE__)
@@ -230,8 +233,11 @@ void scrutiny_report_assert_equal_uint_least16_t(uint_least16_t expected, uint_l
 void scrutiny_report_assert_equal_uint_least32_t(uint_least32_t expected, uint_least32_t actual, const char* file, const char* function, size_t line); /* Checks if expected is equivilant to actual. */
 void scrutiny_report_assert_equal_uint_least64_t(uint_least64_t expected, uint_least64_t actual, const char* file, const char* function, size_t line); /* Checks if expected is equivilant to actual. */
 void scrutiny_report_assert_equal_intptr_t(intptr_t expected, intptr_t actual, const char* file, const char* function, size_t line); /* Checks if expected is equivilant to actual. */
+void scrutiny_report_assert_equal_uintptr_t(uintptr_t expected, uintptr_t actual, const char* file, const char* function, size_t line); /* Checks if expected is equivilant to actual. */
 void scrutiny_report_assert_equal_intmax_t(intmax_t expected, intmax_t actual, const char* file, const char* function, size_t line); /* Checks if expected is equivilant to actual. */
+void scrutiny_report_assert_equal_uintmax_t(uintmax_t expected, uintmax_t actual, const char* file, const char* function, size_t line); /* Checks if expected is equivilant to actual. */
 void scrutiny_report_assert_equal_size_t(size_t expected, size_t actual, const char* file, const char* function, size_t line); /* Checks if expected is equal to actual. */
+void scrutiny_report_assert_equal_ssize_t(ssize_t expected, ssize_t actual, const char* file, const char* function, size_t line); /* Checks if expected is equal to actual. */
 void scrutiny_report_assert_equal_enum(enum_value_t expected, enum_value_t actual, const char* file, const char* function, size_t line); /* Checks if two enum values (ints) are the same. */
 void scrutiny_report_assert_equal_ptr(void* expected, void* actual, const char* file, const char* function, size_t line); /* Checks if the expected pointer and actual pointer are the same. */
 void scrutiny_report_assert_equal_ptr_data(void* expected, void* actual, size_t struct_size, const char* file, const char* function, size_t line); /* Checks if the data at the pointer expected is the same as actual. */
