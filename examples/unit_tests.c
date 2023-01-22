@@ -1,4 +1,4 @@
-#include "../../scrutiny/scrutiny.h"
+#include "../scrutiny/scrutiny.h"
 
 /* This macro expands to void. */
 SCRUTINY_UNIT_TEST add_test(void)
@@ -16,6 +16,7 @@ SCRUTINY_UNIT_TEST add_test(void)
      * assertion in the same test, each assert is a "test case" and each given
      * function is a "unit test". Scrutiny reports both in output.
      */
+
     scrutiny_assert_equal_int(a + b, 8);
 }
 
@@ -28,12 +29,31 @@ SCRUTINY_UNIT_TEST increment_test(void)
         scrutiny_assert_false(limit == i);
 }
 
+SCRUTINY_UNIT_TEST not_equal_test(void)
+{
+    /*
+     * Scrutiny can make equality assertion on arrays as well if given the
+     * length to compare to.
+     */
+    
+    int arr1[] = { 1, 2, 3 };
+    int arr2[] = { 1, 4, 9 };
+
+    /*
+     * We've seen alot of equality assertions, so how about we assert that the
+     * expected value is not equal to the actual value.
+     */
+
+    scrutiny_assert_not_equal_array(arr1, arr2, sizeof(int), 3);
+}
+
 int main()
 {
     scrutiny_unit_test_t scrutiny_unit_tests[] = 
     {
         add_test,        /* Pointer to our unit test. */
         increment_test,  /* Another test. */
+        not_equal_test, 
         NULL             /* End the list. */
     };
 
