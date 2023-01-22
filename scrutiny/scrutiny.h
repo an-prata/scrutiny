@@ -12,6 +12,10 @@
 #include <stdbool.h>
 #include <time.h>
 
+#define SCRUTINY_VERSION_MAJOR 1
+#define SCRUTINY_VERSION_MINOR 0
+#define SCRUTINY_VERSION_PATCH 0
+
 /* 
  * Defined for convinience and code clarity, beyond that these definitions
  * serve no purpose.
