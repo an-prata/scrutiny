@@ -121,7 +121,7 @@ static void succeeded_test_expand_and_add(const char* succeeded_test)
             return;
     
     passed_tests_length++;
-    passed_tests = realloc(passed_tests, passed_tests_length * sizeof(char*));
+    passed_tests = reallocarray(passed_tests, passed_tests_length, sizeof(char*));
     passed_tests[passed_tests_length - 1] = succeeded_test;
 }
 
@@ -149,7 +149,7 @@ static void failed_test_expand_and_add(const char* failed_test)
             return;
 
     failed_tests_length++;
-    failed_tests = realloc(failed_tests, failed_tests_length * sizeof(char*));
+    failed_tests = reallocarray(failed_tests, failed_tests_length, sizeof(char*));
     failed_tests[failed_tests_length - 1] = failed_test;
 }
 
@@ -160,16 +160,16 @@ static void test_file_expand_and_add(const char* test_file)
             return;
 
     test_files_length++;
-    test_files = realloc(test_files, test_files_length * sizeof(char*));
+    test_files = reallocarray(test_files, test_files_length, sizeof(char*));
     test_files[test_files_length - 1] = test_file;
 }
 
 static void benchmark_run_expand_and_add(const char* name, const char* file, clock_t time)
 {
     benchmarks++;
-    benchmark_names = realloc(benchmark_names, benchmarks * sizeof(char*));
-    benchmark_times = realloc(benchmark_times, benchmarks * sizeof(char*));
-    benchmark_files = realloc(benchmark_files, benchmarks * sizeof(char*));
+    benchmark_names = reallocarray(benchmark_names, benchmarks, sizeof(char*));
+    benchmark_times = reallocarray(benchmark_times, benchmarks, sizeof(char*));
+    benchmark_files = reallocarray(benchmark_files, benchmarks, sizeof(char*));
     benchmark_names[benchmarks - 1] = name;
     benchmark_times[benchmarks - 1] = time;
     benchmark_files[benchmarks - 1] = file;
@@ -314,8 +314,8 @@ int scrutiny_output_benchmark_results(file_t* out_file)
         if (unique)
         {
             unique_benchmarks++;
-            unique_benchmarks_names = realloc(unique_benchmarks_names, unique_benchmarks * sizeof(char*));
-            average_times = realloc(average_times, unique_benchmarks * sizeof(in_progress_average_t));
+            unique_benchmarks_names = reallocarray(unique_benchmarks_names, unique_benchmarks, sizeof(char*));
+            average_times = reallocarray(average_times, unique_benchmarks, sizeof(in_progress_average_t));
             unique_benchmarks_names[unique_benchmarks - 1] = benchmark_names[benchmark];
             average_times[unique_benchmarks - 1].running_total = benchmark_times[benchmark];
             average_times[unique_benchmarks - 1].divisor = 1;
