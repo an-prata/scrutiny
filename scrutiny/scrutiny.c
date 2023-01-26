@@ -334,9 +334,9 @@ int scrutiny_output_benchmark_results(file_t* out_file)
         long double average_seconds = (long double)average_time / (long double)CLOCKS_PER_SEC;
 
         if (average_seconds < 0.1)
-            fprintf(out_file, SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL ": %.1Lf ms\n", unique_benchmarks_names[i], average_seconds * 1000);
+            fprintf(out_file, SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL ": %.1Lf ms (%.1Lf per/s)\n", unique_benchmarks_names[i], average_seconds * 1000, 1.0L / average_seconds);
         else
-            fprintf(out_file, SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL ": %.3Lf s\n", unique_benchmarks_names[i], average_seconds);
+            fprintf(out_file, SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL ": %.3Lf s (%.1Lf per/s)\n", unique_benchmarks_names[i], average_seconds, 1.0L / average_seconds);
     }
 
     if (ferror(out_file))
