@@ -13,7 +13,7 @@
 #include <time.h>
 
 #define SCRUTINY_VERSION_MAJOR 1
-#define SCRUTINY_VERSION_MINOR 1
+#define SCRUTINY_VERSION_MINOR 2
 #define SCRUTINY_VERSION_PATCH 0
 
 /* 
