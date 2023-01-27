@@ -12,8 +12,8 @@
 #define SCRUTINY_TEXT_BLUE "\033[0;44m"
 #define SCRUTINY_TEXT_RED "\033[0;31m"
 
-#define assert_equal_unsigned_generic(expected, actual, file, function, line, test) test_file_expand_and_add(file); \
-    if (expected != actual) \
+#define assert_unsigned_generic(operator, expected, actual, file, function, line) test_file_expand_and_add(file); \
+    if (!(expected operator actual)) \
     { \
         succeeded_test_contract_and_remove(function); \
         failed_test_expand_and_add(function); \
@@ -22,8 +22,8 @@
     }\
     succeeded_test_expand_and_add(function)
 
-#define assert_equal_signed_generic(expected, actual, file, function, line, test) test_file_expand_and_add(file); \
-    if (expected != actual) \
+#define assert_signed_generic(operator, expected, actual, file, function, line) test_file_expand_and_add(file); \
+    if (!(expected operator actual)) \
     { \
         succeeded_test_contract_and_remove(function); \
         failed_test_expand_and_add(function); \
@@ -32,38 +32,8 @@
     }\
     succeeded_test_expand_and_add(function)
 
-#define assert_equal_floating_generic(expected, actual, file, function, line, test) test_file_expand_and_add(file); \
-    if (expected != actual) \
-    { \
-        succeeded_test_contract_and_remove(function); \
-        failed_test_expand_and_add(function); \
-        failed_test_print_failure_floating(expected, actual, file, function, line, __func__); \
-        return; \
-    }\
-    succeeded_test_expand_and_add(function)
-
-#define assert_not_equal_unsigned_generic(expected, actual, file, function, line, test) test_file_expand_and_add(file); \
-    if (expected == actual) \
-    { \
-        succeeded_test_contract_and_remove(function); \
-        failed_test_expand_and_add(function); \
-        failed_test_print_failure_unsigned_integer(expected, actual, file, function, line, __func__); \
-        return; \
-    }\
-    succeeded_test_expand_and_add(function)
-
-#define assert_not_equal_signed_generic(expected, actual, file, function, line, test) test_file_expand_and_add(file); \
-    if (expected == actual) \
-    { \
-        succeeded_test_contract_and_remove(function); \
-        failed_test_expand_and_add(function); \
-        failed_test_print_failure_signed_integer(expected, actual, file, function, line, __func__); \
-        return; \
-    }\
-    succeeded_test_expand_and_add(function)
-
-#define assert_not_equal_floating_generic(expected, actual, file, function, line, test) test_file_expand_and_add(file); \
-    if (expected == actual) \
+#define assert_floating_generic(operator, expected, actual, file, function, line) test_file_expand_and_add(file); \
+    if (!(expected operator actual)) \
     { \
         succeeded_test_contract_and_remove(function); \
         failed_test_expand_and_add(function); \
@@ -436,242 +406,6 @@ void scrutiny_report_assert_false(bool expression, const char* file, const char*
     succeeded_test_expand_and_add(function);
 }
 
-
-void scrutiny_report_assert_equal_char(char expected, char actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_unsigned_char(unsigned char expected, unsigned char actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_short(short expected, short actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_int(int expected, int actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_long(long expected, long actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_long_long(long long expected, long long actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_unsigned_short(unsigned short expected, unsigned short actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_unsigned_int(unsigned int expected, unsigned int actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_unsigned_long(unsigned long expected, unsigned long actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_unsigned_long_long(unsigned long long expected, unsigned long long actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_float(float expected, float actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_floating_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_double(double expected, double actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_floating_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_long_double(long double expected, long double actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_floating_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_int8_t(int8_t expected, int8_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_int16_t(int16_t expected, int16_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_int32_t(int32_t expected, int32_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_int64_t(int64_t expected, int64_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_int_fast8_t(int_fast8_t expected, int_fast8_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_int_fast16_t(int_fast16_t expected, int_fast16_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_int_fast32_t(int_fast32_t expected, int_fast32_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_int_fast64_t(int_fast64_t expected, int_fast64_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_int_least8_t(int_least8_t expected, int_least8_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_int_least16_t(int_least16_t expected, int_least16_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_int_least32_t(int_least32_t expected, int_least32_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_int_least64_t(int_least64_t expected, int_least64_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_uint8_t(uint8_t expected, uint8_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_uint16_t(uint16_t expected, uint16_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_uint32_t(uint32_t expected, uint32_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_uint64_t(uint64_t expected, uint64_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_uint_fast8_t(uint_fast8_t expected, uint_fast8_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_uint_fast16_t(uint_fast16_t expected, uint_fast16_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_uint_fast32_t(uint_fast32_t expected, uint_fast32_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_uint_fast64_t(uint_fast64_t expected, uint_fast64_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_uint_least8_t(uint_least8_t expected, uint_least8_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_uint_least16_t(uint_least16_t expected, uint_least16_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_uint_least32_t(uint_least32_t expected, uint_least32_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_uint_least64_t(uint_least64_t expected, uint_least64_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_intptr_t(intptr_t expected, intptr_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_uintptr_t(uintptr_t expected, uintptr_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_intmax_t(intmax_t expected, intmax_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_uintmax_t(uintmax_t expected, uintmax_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_size_t(size_t expected, size_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_ssize_t(ssize_t expected, ssize_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_enum(enum_value_t expected, enum_value_t actual, const char* file, const char* function, size_t line)
-{
-    assert_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_equal_ptr(void* expected, void* actual, const char* file, const char* function, size_t line)
-{
-    test_file_expand_and_add(file);
-
-    if (expected != actual)
-    {
-        succeeded_test_contract_and_remove(function);
-        failed_test_expand_and_add(function);
-        failed_test_print_failure_unsigned_integer((uint64_t)expected, (uint64_t)actual, file, function, line, __func__);
-        return;
-    }
-
-    succeeded_test_expand_and_add(function);
-}
-
 void scrutiny_report_assert_equal_ptr_data(void* expected, void* actual, size_t struct_size, const char* file, const char* function, size_t line)
 {
     test_file_expand_and_add(file);
@@ -752,241 +486,6 @@ void scrutiny_report_assert_equal_non_terminated_string(char* expected, char* ac
     succeeded_test_expand_and_add(function);
 }
 
-void scrutiny_report_assert_not_equal_char(char expected, char actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_unsigned_char(unsigned char expected, unsigned char actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_short(short expected, short actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_int(int expected, int actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_long(long expected, long actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_long_long(long long expected, long long actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_unsigned_short(unsigned short expected, unsigned short actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_unsigned_int(unsigned int expected, unsigned int actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_unsigned_long(unsigned long expected, unsigned long actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_unsigned_long_long(unsigned long long expected, unsigned long long actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_float(float expected, float actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_floating_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_double(double expected, double actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_floating_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_long_double(long double expected, long double actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_floating_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_int8_t(int8_t expected, int8_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_int16_t(int16_t expected, int16_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_int32_t(int32_t expected, int32_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_int64_t(int64_t expected, int64_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_int_fast8_t(int_fast8_t expected, int_fast8_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_int_fast16_t(int_fast16_t expected, int_fast16_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_int_fast32_t(int_fast32_t expected, int_fast32_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_int_fast64_t(int_fast64_t expected, int_fast64_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_int_least8_t(int_least8_t expected, int_least8_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_int_least16_t(int_least16_t expected, int_least16_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_int_least32_t(int_least32_t expected, int_least32_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_int_least64_t(int_least64_t expected, int_least64_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_uint8_t(uint8_t expected, uint8_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_uint16_t(uint16_t expected, uint16_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_uint32_t(uint32_t expected, uint32_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_uint64_t(uint64_t expected, uint64_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_uint_fast8_t(uint_fast8_t expected, uint_fast8_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_uint_fast16_t(uint_fast16_t expected, uint_fast16_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_uint_fast32_t(uint_fast32_t expected, uint_fast32_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_uint_fast64_t(uint_fast64_t expected, uint_fast64_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_uint_least8_t(uint_least8_t expected, uint_least8_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_uint_least16_t(uint_least16_t expected, uint_least16_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_uint_least32_t(uint_least32_t expected, uint_least32_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_uint_least64_t(uint_least64_t expected, uint_least64_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_intptr_t(intptr_t expected, intptr_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_uintptr_t(uintptr_t expected, uintptr_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_intmax_t(intmax_t expected, intmax_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_uintmax_t(uintmax_t expected, uintmax_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_size_t(size_t expected, size_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_unsigned_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_ssize_t(ssize_t expected, ssize_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_enum(enum_value_t expected, enum_value_t actual, const char* file, const char* function, size_t line)
-{
-    assert_not_equal_signed_generic(expected, actual, file, function, line, __func__);
-}
-
-void scrutiny_report_assert_not_equal_ptr(void* expected, void* actual, const char* file, const char* function, size_t line)
-{
-    test_file_expand_and_add(file);
-
-    if (expected == actual)
-    {
-        succeeded_test_contract_and_remove(function);
-        failed_test_expand_and_add(function);
-        failed_test_print_failure_unsigned_integer((uint64_t)expected, (uint64_t)actual, file, function, line, __func__);
-        return;
-    }
-
-    succeeded_test_expand_and_add(function);
-}
-
 void scrutiny_report_assert_not_equal_ptr_data(void* expected, void* actual, size_t struct_size, const char* file, const char* function, size_t line)
 {
     test_file_expand_and_add(file);
@@ -1062,6 +561,190 @@ void scrutiny_report_assert_not_equal_non_terminated_string(char* expected, char
     printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, function, __func__, line);
 }
 
+
+void scrutiny_report_assert_equal_char(char expected, char actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_unsigned_char(unsigned char expected, unsigned char actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_short(short expected, short actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_int(int expected, int actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_long(long expected, long actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_long_long(long long expected, long long actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_unsigned_short(unsigned short expected, unsigned short actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_unsigned_int(unsigned int expected, unsigned int actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_unsigned_long(unsigned long expected, unsigned long actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_unsigned_long_long(unsigned long long expected, unsigned long long actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_float(float expected, float actual, const char* file, const char* function, size_t line) { assert_floating_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_double(double expected, double actual, const char* file, const char* function, size_t line) { assert_floating_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_long_double(long double expected, long double actual, const char* file, const char* function, size_t line) { assert_floating_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_int8_t(int8_t expected, int8_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_int16_t(int16_t expected, int16_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_int32_t(int32_t expected, int32_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_int64_t(int64_t expected, int64_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_int_fast8_t(int_fast8_t expected, int_fast8_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_int_fast16_t(int_fast16_t expected, int_fast16_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_int_fast32_t(int_fast32_t expected, int_fast32_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_int_fast64_t(int_fast64_t expected, int_fast64_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_int_least8_t(int_least8_t expected, int_least8_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_int_least16_t(int_least16_t expected, int_least16_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_int_least32_t(int_least32_t expected, int_least32_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_int_least64_t(int_least64_t expected, int_least64_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_uint8_t(uint8_t expected, uint8_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_uint16_t(uint16_t expected, uint16_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_uint32_t(uint32_t expected, uint32_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_uint64_t(uint64_t expected, uint64_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_uint_fast8_t(uint_fast8_t expected, uint_fast8_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_uint_fast16_t(uint_fast16_t expected, uint_fast16_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_uint_fast32_t(uint_fast32_t expected, uint_fast32_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_uint_fast64_t(uint_fast64_t expected, uint_fast64_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_uint_least8_t(uint_least8_t expected, uint_least8_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_uint_least16_t(uint_least16_t expected, uint_least16_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_uint_least32_t(uint_least32_t expected, uint_least32_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_uint_least64_t(uint_least64_t expected, uint_least64_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_intptr_t(intptr_t expected, intptr_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_uintptr_t(uintptr_t expected, uintptr_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_intmax_t(intmax_t expected, intmax_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_uintmax_t(uintmax_t expected, uintmax_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_size_t(size_t expected, size_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_ssize_t(ssize_t expected, ssize_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_enum(enum_value_t expected, enum_value_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_ptr(void* expected, void* actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, (uintptr_t)expected, (uintptr_t)actual, file, function, line); }
+
+void scrutiny_report_assert_not_equal_char(char expected, char actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_unsigned_char(unsigned char expected, unsigned char actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_short(short expected, short actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_int(int expected, int actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_long(long expected, long actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_long_long(long long expected, long long actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_unsigned_short(unsigned short expected, unsigned short actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_unsigned_int(unsigned int expected, unsigned int actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_unsigned_long(unsigned long expected, unsigned long actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_unsigned_long_long(unsigned long long expected, unsigned long long actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_float(float expected, float actual, const char* file, const char* function, size_t line) { assert_floating_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_double(double expected, double actual, const char* file, const char* function, size_t line) { assert_floating_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_long_double(long double expected, long double actual, const char* file, const char* function, size_t line) { assert_floating_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_int8_t(int8_t expected, int8_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_int16_t(int16_t expected, int16_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_int32_t(int32_t expected, int32_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_int64_t(int64_t expected, int64_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_int_fast8_t(int_fast8_t expected, int_fast8_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_int_fast16_t(int_fast16_t expected, int_fast16_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_int_fast32_t(int_fast32_t expected, int_fast32_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_int_fast64_t(int_fast64_t expected, int_fast64_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_int_least8_t(int_least8_t expected, int_least8_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_int_least16_t(int_least16_t expected, int_least16_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_int_least32_t(int_least32_t expected, int_least32_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_int_least64_t(int_least64_t expected, int_least64_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_uint8_t(uint8_t expected, uint8_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_uint16_t(uint16_t expected, uint16_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_uint32_t(uint32_t expected, uint32_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_uint64_t(uint64_t expected, uint64_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_uint_fast8_t(uint_fast8_t expected, uint_fast8_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_uint_fast16_t(uint_fast16_t expected, uint_fast16_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_uint_fast32_t(uint_fast32_t expected, uint_fast32_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_uint_fast64_t(uint_fast64_t expected, uint_fast64_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_uint_least8_t(uint_least8_t expected, uint_least8_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_uint_least16_t(uint_least16_t expected, uint_least16_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_uint_least32_t(uint_least32_t expected, uint_least32_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_uint_least64_t(uint_least64_t expected, uint_least64_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_intptr_t(intptr_t expected, intptr_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_uintptr_t(uintptr_t expected, uintptr_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_intmax_t(intmax_t expected, intmax_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_uintmax_t(uintmax_t expected, uintmax_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_size_t(size_t expected, size_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_ssize_t(ssize_t expected, ssize_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_enum(enum_value_t expected, enum_value_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_ptr(void* expected, void* actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, (uintptr_t)expected, (uintptr_t)actual, file, function, line); }
+
+void scrutiny_report_assert_greater_than_char(char expected, char actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_unsigned_char(unsigned char expected, unsigned char actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_short(short expected, short actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_int(int expected, int actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_long(long expected, long actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_long_long(long long expected, long long actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_unsigned_short(unsigned short expected, unsigned short actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_unsigned_int(unsigned int expected, unsigned int actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_unsigned_long(unsigned long expected, unsigned long actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_unsigned_long_long(unsigned long long expected, unsigned long long actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_float(float expected, float actual, const char* file, const char* function, size_t line) { assert_floating_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_double(double expected, double actual, const char* file, const char* function, size_t line) { assert_floating_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_long_double(long double expected, long double actual, const char* file, const char* function, size_t line) { assert_floating_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_int8_t(int8_t expected, int8_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_int16_t(int16_t expected, int16_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_int32_t(int32_t expected, int32_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_int64_t(int64_t expected, int64_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_int_fast8_t(int_fast8_t expected, int_fast8_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_int_fast16_t(int_fast16_t expected, int_fast16_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_int_fast32_t(int_fast32_t expected, int_fast32_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_int_fast64_t(int_fast64_t expected, int_fast64_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_int_least8_t(int_least8_t expected, int_least8_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_int_least16_t(int_least16_t expected, int_least16_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_int_least32_t(int_least32_t expected, int_least32_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_int_least64_t(int_least64_t expected, int_least64_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_uint8_t(uint8_t expected, uint8_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_uint16_t(uint16_t expected, uint16_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_uint32_t(uint32_t expected, uint32_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_uint64_t(uint64_t expected, uint64_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_uint_fast8_t(uint_fast8_t expected, uint_fast8_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_uint_fast16_t(uint_fast16_t expected, uint_fast16_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_uint_fast32_t(uint_fast32_t expected, uint_fast32_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_uint_fast64_t(uint_fast64_t expected, uint_fast64_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_uint_least8_t(uint_least8_t expected, uint_least8_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_uint_least16_t(uint_least16_t expected, uint_least16_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_uint_least32_t(uint_least32_t expected, uint_least32_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_uint_least64_t(uint_least64_t expected, uint_least64_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_intptr_t(intptr_t expected, intptr_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_uintptr_t(uintptr_t expected, uintptr_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_intmax_t(intmax_t expected, intmax_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_uintmax_t(uintmax_t expected, uintmax_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_size_t(size_t expected, size_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_ssize_t(ssize_t expected, ssize_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_enum(enum_value_t expected, enum_value_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_ptr(void* expected, void* actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, (uintptr_t)expected, (uintptr_t)actual, file, function, line); }
+
+void scrutiny_report_assert_less_than_char(char expected, char actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_unsigned_char(unsigned char expected, unsigned char actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_short(short expected, short actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_int(int expected, int actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_long(long expected, long actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_long_long(long long expected, long long actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_unsigned_short(unsigned short expected, unsigned short actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_unsigned_int(unsigned int expected, unsigned int actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_unsigned_long(unsigned long expected, unsigned long actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_unsigned_long_long(unsigned long long expected, unsigned long long actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_float(float expected, float actual, const char* file, const char* function, size_t line) { assert_floating_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_double(double expected, double actual, const char* file, const char* function, size_t line) { assert_floating_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_long_double(long double expected, long double actual, const char* file, const char* function, size_t line) { assert_floating_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_int8_t(int8_t expected, int8_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_int16_t(int16_t expected, int16_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_int32_t(int32_t expected, int32_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_int64_t(int64_t expected, int64_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_int_fast8_t(int_fast8_t expected, int_fast8_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_int_fast16_t(int_fast16_t expected, int_fast16_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_int_fast32_t(int_fast32_t expected, int_fast32_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_int_fast64_t(int_fast64_t expected, int_fast64_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_int_least8_t(int_least8_t expected, int_least8_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_int_least16_t(int_least16_t expected, int_least16_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_int_least32_t(int_least32_t expected, int_least32_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_int_least64_t(int_least64_t expected, int_least64_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_uint8_t(uint8_t expected, uint8_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_uint16_t(uint16_t expected, uint16_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_uint32_t(uint32_t expected, uint32_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_uint64_t(uint64_t expected, uint64_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_uint_fast8_t(uint_fast8_t expected, uint_fast8_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_uint_fast16_t(uint_fast16_t expected, uint_fast16_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_uint_fast32_t(uint_fast32_t expected, uint_fast32_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_uint_fast64_t(uint_fast64_t expected, uint_fast64_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_uint_least8_t(uint_least8_t expected, uint_least8_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_uint_least16_t(uint_least16_t expected, uint_least16_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_uint_least32_t(uint_least32_t expected, uint_least32_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_uint_least64_t(uint_least64_t expected, uint_least64_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_intptr_t(intptr_t expected, intptr_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_uintptr_t(uintptr_t expected, uintptr_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_intmax_t(intmax_t expected, intmax_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_uintmax_t(uintmax_t expected, uintmax_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_size_t(size_t expected, size_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_ssize_t(ssize_t expected, ssize_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_enum(enum_value_t expected, enum_value_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_ptr(void* expected, void* actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, (uintptr_t)expected, (uintptr_t)actual, file, function, line); }
 
 void scrutiny_report_benchmark_time(clock_t time, const char* file, const char* function, size_t line)
 {
