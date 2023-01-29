@@ -156,6 +156,9 @@ static void failed_test_print_failure(const char* expected, const char* actual, 
 
     printf("\tExpected:  %s\n", expected);
     printf("\tActual:    %s\n", actual);
+
+    if (test_results == NULL)
+        exit(EXIT_FAILURE);
 }
 
 static void failed_test_print_failure_unsigned_integer(uint64_t expected, uint64_t actual, const char* file, const char* function, size_t line, const char* assert)
@@ -204,7 +207,7 @@ void scrutiny_run_tests(scrutiny_unit_test_t* scrutiny_unit_tests)
 {
     test_results = malloc(sizeof(scrutiny_test_results_t));
     memset(test_results, 0, sizeof(scrutiny_test_results_t));
-    
+
     for (size_t test = 0; scrutiny_unit_tests[test] != NULL; test++)
         scrutiny_unit_tests[test]();
 }
@@ -382,15 +385,21 @@ int scrutiny_output_benchmark_results_parsable(file_t* file)
 
 void scrutiny_clear_results(void)
 {
-    free(test_results->passed_test_names);
-    free(test_results->failed_test_names);
-    free(test_results->file_names);
-    free(test_results);
+    if (test_results != NULL)
+    {
+        free(test_results->passed_test_names);
+        free(test_results->failed_test_names);
+        free(test_results->file_names);
+        free(test_results);
+    }
 
-    free(benchmark_results->benchmark_names);
-    free(benchmark_results->benchmark_times);
-    free(benchmark_results->file_names);
-    free(benchmark_results);
+    if (benchmark_results != NULL)
+    {
+        free(benchmark_results->benchmark_names);
+        free(benchmark_results->benchmark_times);
+        free(benchmark_results->file_names);
+        free(benchmark_results);
+    }
 
     test_results = NULL;
     benchmark_results = NULL;
