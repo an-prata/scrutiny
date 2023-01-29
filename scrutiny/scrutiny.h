@@ -287,12 +287,12 @@ void scrutiny_run_benchmarks_n_times(scrutiny_benchmark_t* scrutiny_benchmarks, 
 /*
  * Gets the results of previously run tests.
  */
-scrutiny_test_results_t scrutiny_get_test_results(void);
+scrutiny_test_results_t* scrutiny_get_test_results(void);
 
 /*
  * Gets the results of previously run benchmarks.
  */
-scrutiny_benchmark_results_t scrutiny_get_benchmark_results(void);
+scrutiny_benchmark_results_t* scrutiny_get_benchmark_results(void);
 
 /*
  * Outputs test results to the given file. Tests must be run before outputting.
@@ -328,6 +328,13 @@ int scrutiny_output_test_results_parsable(file_t* out_file);
  * is set by the end of the function.
  */
 int scrutiny_output_benchmark_results_parsable(file_t* file);
+
+/*
+ * Clear scrutiny's record of test and benchmark runs, calling this will make
+ * assertions behave as state insurance in a program's runtime rather than a
+ * unit test assertion. Also clears all memory used by the results.
+ */
+void scrutiny_clear_results(void);
 
 /*
  * The following functions, while not intended to be used directly, will not
