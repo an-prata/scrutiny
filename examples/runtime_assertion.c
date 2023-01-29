@@ -11,7 +11,12 @@ int main()
 	int b = 4;
 
 	scrutiny_assert_equal_int(a, b * 2);
-	printf("Passed One!");
+	printf("Passed One!\n");
+
+	/*
+	 * If you want to make runtime assertions like this after running unit tests
+	 * you will need to make a call to scrutiny_clear_results().
+	 */
 
 	int arr1[] = { 2, 4, 6, 8 };
 	int arr2[] = { 2, 4, 5, 7 };
