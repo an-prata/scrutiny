@@ -241,10 +241,10 @@ scrutiny_benchmark_results_t* scrutiny_get_benchmark_results(void)
     return benchmark_results;
 }
 
-int scrutiny_output_test_results(file_t* out_file)
+scrutiny_error_t scrutiny_output_test_results(file_t* out_file)
 {
     if (out_file == NULL)
-        return 1;
+        return SCRUTINY_ERROR_INVALID_ARGUMENT;
 
     long double percent_passed = ((long double)test_results->passed_tests / (long double)(test_results->passed_tests + test_results->failed_tests)) * 100.0;
     long double percent_failed = ((long double)test_results->failed_tests / (long double)(test_results->passed_tests + test_results->failed_tests)) * 100.0;
@@ -274,15 +274,15 @@ int scrutiny_output_test_results(file_t* out_file)
     fflush(out_file);
 
     if (ferror(out_file))
-        return -1;
+        return SCRUTINY_ERROR_COULDNT_WRITE_TO_FILE;
     
-    return 0;
+    return SCRUTINY_ERROR_NONE;
 }
 
-int scrutiny_output_benchmark_results(file_t* out_file)
+scrutiny_error_t scrutiny_output_benchmark_results(file_t* out_file)
 {
     if (out_file == NULL)
-        return 1;
+        return SCRUTINY_ERROR_INVALID_ARGUMENT;
 
     size_t unique_benchmarks = 0;
     in_progress_average_t* average_times = NULL;
@@ -331,15 +331,15 @@ int scrutiny_output_benchmark_results(file_t* out_file)
     }
 
     if (ferror(out_file))
-        return -1;
+        return SCRUTINY_ERROR_COULDNT_WRITE_TO_FILE; 
 
-    return 0;
+    return SCRUTINY_ERROR_NONE;
 }
 
-int scrutiny_output_test_results_parsable(file_t* out_file)
+scrutiny_error_t scrutiny_output_test_results_parsable(file_t* out_file)
 {
     if (out_file == NULL)
-        return 1;
+        return SCRUTINY_ERROR_INVALID_ARGUMENT;
 
     long double percent_passed = ((long double)test_results->passed_tests / (long double)(test_results->passed_tests + test_results->failed_tests)) * 100.0;
     long double percent_failed = ((long double)test_results->failed_tests / (long double)(test_results->passed_tests + test_results->failed_tests)) * 100.0;
@@ -364,23 +364,23 @@ int scrutiny_output_test_results_parsable(file_t* out_file)
     fflush(out_file);
 
     if (ferror(out_file))
-        return -1;
+        return SCRUTINY_ERROR_COULDNT_WRITE_TO_FILE;
     
-    return 0;
+    return SCRUTINY_ERROR_NONE;
 }
 
-int scrutiny_output_benchmark_results_parsable(file_t* file)
+scrutiny_error_t scrutiny_output_benchmark_results_parsable(file_t* file)
 {
     if (file == NULL)
-        return 1;
+        return SCRUTINY_ERROR_INVALID_ARGUMENT;
 
     for (size_t i = 0; i < benchmark_results->benchmarks; i++)
         fprintf(file, "%s:%Lf\n", benchmark_results->benchmark_names[i], (long double)benchmark_results->benchmark_times[i] / (long double)CLOCKS_PER_SEC);
     
     if (ferror(file))
-        return -1;
+        return SCRUTINY_ERROR_COULDNT_WRITE_TO_FILE;
     
-    return 0;
+    return SCRUTINY_ERROR_NONE;
 }
 
 void scrutiny_clear_results(void)

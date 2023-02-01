@@ -237,10 +237,18 @@
 #define scrutiny_benchamrk_start() clock_t _scrutiny_benchmark_start_time = clock()
 #define scrutiny_benchmark_finish() scrutiny_report_benchmark_time(clock() - _scrutiny_benchmark_start_time, __FILE__, __func__, __LINE__)
 
+enum scrutiny_error_e
+{
+    SCRUTINY_ERROR_NONE,
+    SCRUTINY_ERROR_INVALID_ARGUMENT,
+    SCRUTINY_ERROR_COULDNT_WRITE_TO_FILE
+};
+
 typedef FILE file_t;
 typedef int enum_value_t;
 typedef void (*scrutiny_unit_test_t)(void);
 typedef void (*scrutiny_benchmark_t)(void);
+typedef enum scrutiny_error_e scrutiny_error_t;
 typedef struct scrutiny_test_results_s scrutiny_test_results_t;
 typedef struct scrutiny_benchmark_results_s scrutiny_benchmark_results_t;
 
@@ -296,38 +304,26 @@ scrutiny_benchmark_results_t* scrutiny_get_benchmark_results(void);
 
 /*
  * Outputs test results to the given file. Tests must be run before outputting.
- *
- * Returns 0 on success, 1 if out_file is NULL, and -1 if file error indicator
- * is set by the end of the function.
  */
-int scrutiny_output_test_results(file_t* out_file);
+scrutiny_error_t scrutiny_output_test_results(file_t* out_file);
 
 /*
  * Outputs benchmark results to the given file. Like with test output
  * benchmarks must be run beforehand.
- *
- * Returns 0 on success, 1 of out_file is NULL, and -1 if file error indicator
- * is set by the end of the function.
  */
-int scrutiny_output_benchmark_results(file_t* out_file);
+scrutiny_error_t scrutiny_output_benchmark_results(file_t* out_file);
 
 /*
  * Outputs test results to the given file. Tests must be run before outputting.
  * Output here is designed to be easier to parse using a script or other
  * program.
- *
- * Returns 0 on success, 1 if out_file is NULL, and -1 if file error indicator
- * is set by the end of the function.
  */
-int scrutiny_output_test_results_parsable(file_t* out_file);
+scrutiny_error_t scrutiny_output_test_results_parsable(file_t* out_file);
 
 /*
  * Outputs a more easily parsable text to the given file for benchmark results.
- *
- * Returns 0 on success, 1 if out_file is NULL, and -1 if file error indicator
- * is set by the end of the function.
  */
-int scrutiny_output_benchmark_results_parsable(file_t* file);
+scrutiny_error_t scrutiny_output_benchmark_results_parsable(file_t* file);
 
 /*
  * Clear scrutiny's record of test and benchmark runs, calling this will make
