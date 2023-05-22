@@ -14,8 +14,7 @@
 #define SCRUTINY_TEXT_RED "\033[0;31m"
 
 #define assert_unsigned_generic(operator, expected, actual, file, function, line) test_file_expand_and_add(file); \
-    if (!(expected operator actual)) \
-    { \
+    if (!(expected operator actual)) { \
         succeeded_test_contract_and_remove(function); \
         failed_test_expand_and_add(function); \
         failed_test_print_failure_unsigned_integer(expected, actual, file, function, line, __func__); \
@@ -24,8 +23,7 @@
     succeeded_test_expand_and_add(function)
 
 #define assert_signed_generic(operator, expected, actual, file, function, line) test_file_expand_and_add(file); \
-    if (!(expected operator actual)) \
-    { \
+    if (!(expected operator actual)) { \
         succeeded_test_contract_and_remove(function); \
         failed_test_expand_and_add(function); \
         failed_test_print_failure_signed_integer(expected, actual, file, function, line, __func__); \
@@ -34,8 +32,7 @@
     succeeded_test_expand_and_add(function)
 
 #define assert_floating_generic(operator, expected, actual, file, function, line) test_file_expand_and_add(file); \
-    if (!(expected operator actual)) \
-    { \
+    if (!(expected operator actual)) { \
         succeeded_test_contract_and_remove(function); \
         failed_test_expand_and_add(function); \
         failed_test_print_failure_floating(expected, actual, file, function, line, __func__); \
@@ -43,21 +40,18 @@
     }\
     succeeded_test_expand_and_add(function)
 
-typedef struct in_progress_average_s in_progress_average_t;
+typedef struct _InProgressAverage InProgressAverage;
 
-struct in_progress_average_s
-{
+struct _InProgressAverage {
     size_t divisor;
-    clock_t running_total;
+    Clock running_total;
 };
 
-static scrutiny_test_results_t* test_results = NULL;
-static scrutiny_benchmark_results_t* benchmark_results = NULL;
+static Scrutiny_TestResults* test_results = NULL;
+static Scrutiny_BenchmarkResults* benchmark_results = NULL;
 
-static bool compare_null_terminated_strings(const char* str0, const char* str1)
-{
-    for (size_t i = 0;; i++)
-    {
+static bool compare_null_terminated_strings(const char* str0, const char* str1) {
+    for (size_t i = 0;; i++) {
         if (str0[i] == '\0' && str1[i] == '\0')
             return true;
         if (str0[i] == '\0' && str1[i] == '\0')
@@ -67,8 +61,7 @@ static bool compare_null_terminated_strings(const char* str0, const char* str1)
     }
 }
 
-static void succeeded_test_expand_and_add(const char* succeeded_test)
-{
+static void succeeded_test_expand_and_add(const char* succeeded_test) {
     if (test_results == NULL)
         return;
 
@@ -88,15 +81,12 @@ static void succeeded_test_expand_and_add(const char* succeeded_test)
     test_results->passed_test_names[test_results->passed_tests - 1] = succeeded_test;
 }
 
-static void succeeded_test_contract_and_remove(const char* test)
-{
+static void succeeded_test_contract_and_remove(const char* test) {
     if (test_results == NULL)
         return;
 
-    for (size_t i = 0; i < test_results->passed_tests; i++)
-    {
-        if (compare_null_terminated_strings(test_results->passed_test_names[i], test))
-        {
+    for (size_t i = 0; i < test_results->passed_tests; i++) {
+        if (compare_null_terminated_strings(test_results->passed_test_names[i], test)) {
             if (i != test_results->passed_tests - 1)
                 test_results->passed_test_names[i] = test_results->passed_test_names[test_results->passed_tests - 1];
 
@@ -106,8 +96,7 @@ static void succeeded_test_contract_and_remove(const char* test)
     }
 }
 
-static void failed_test_expand_and_add(const char* failed_test)
-{
+static void failed_test_expand_and_add(const char* failed_test) {
     if (test_results == NULL)
         return;
     
@@ -122,8 +111,7 @@ static void failed_test_expand_and_add(const char* failed_test)
     test_results->failed_test_names[test_results->failed_tests - 1] = failed_test;
 }
 
-static void test_file_expand_and_add(const char* test_file)
-{
+static void test_file_expand_and_add(const char* test_file) {
     if (test_results == NULL)
         return;
 
@@ -136,8 +124,7 @@ static void test_file_expand_and_add(const char* test_file)
     test_results->file_names[test_results->files - 1] = test_file;
 }
 
-static void benchmark_run_expand_and_add(const char* name, const char* file, clock_t time)
-{
+static void benchmark_run_expand_and_add(const char* name, const char* file, Clock time) {
     benchmark_results->benchmarks++;
     benchmark_results->benchmark_names = reallocarray(benchmark_results->benchmark_names, benchmark_results->benchmarks, sizeof(char*));
     benchmark_results->benchmark_times = reallocarray(benchmark_results->benchmark_times, benchmark_results->benchmarks, sizeof(char*));
@@ -147,8 +134,7 @@ static void benchmark_run_expand_and_add(const char* name, const char* file, clo
     benchmark_results->file_names[benchmark_results->benchmarks - 1] = file;
 }
 
-static void failed_test_print_failure(const char* expected, const char* actual, const char* file, const char* function, size_t line, const char* assert)
-{
+static void failed_test_print_failure(const char* expected, const char* actual, const char* file, const char* function, size_t line, const char* assert) {
     if (test_results == NULL)
         printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nASSERTION FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed in " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, assert, function, line);
     else
@@ -161,8 +147,7 @@ static void failed_test_print_failure(const char* expected, const char* actual, 
         exit(EXIT_FAILURE);
 }
 
-static void failed_test_print_failure_unsigned_integer(uint64_t expected, uint64_t actual, const char* file, const char* function, size_t line, const char* assert)
-{
+static void failed_test_print_failure_unsigned_integer(uint64_t expected, uint64_t actual, const char* file, const char* function, size_t line, const char* assert) {
     if (test_results == NULL)
         printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nASSERTION FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed in " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, assert, function, line);
     else
@@ -175,8 +160,7 @@ static void failed_test_print_failure_unsigned_integer(uint64_t expected, uint64
         exit(EXIT_FAILURE);
 }
 
-static void failed_test_print_failure_signed_integer(int64_t expected, int64_t actual, const char* file, const char* function, size_t line, const char* assert)
-{
+static void failed_test_print_failure_signed_integer(int64_t expected, int64_t actual, const char* file, const char* function, size_t line, const char* assert) {
     if (test_results == NULL)
         printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nASSERTION FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed in " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, assert, function, line);
     else
@@ -189,8 +173,7 @@ static void failed_test_print_failure_signed_integer(int64_t expected, int64_t a
         exit(EXIT_FAILURE);
 }
 
-static void failed_test_print_failure_floating(long double expected, long double actual, const char* file, const char* function, size_t line, const char* assert)
-{
+static void failed_test_print_failure_floating(long double expected, long double actual, const char* file, const char* function, size_t line, const char* assert) {
     if (test_results == NULL)
         printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nASSERTION FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed in " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, assert, function, line);
     else
@@ -203,46 +186,40 @@ static void failed_test_print_failure_floating(long double expected, long double
         exit(EXIT_FAILURE);
 }
 
-void scrutiny_run_tests(scrutiny_unit_test_t* scrutiny_unit_tests)
-{
-    test_results = malloc(sizeof(scrutiny_test_results_t));
-    memset(test_results, 0, sizeof(scrutiny_test_results_t));
+void scrutiny_run_tests(Scrutiny_UnitTest* scrutiny_unit_tests) {
+    test_results = malloc(sizeof(scrutiny_get_test_results));
+    memset(test_results, 0, sizeof(scrutiny_get_test_results));
 
     for (size_t test = 0; scrutiny_unit_tests[test] != NULL; test++)
         scrutiny_unit_tests[test]();
 }
 
-void scrutiny_run_benchmarks(scrutiny_benchmark_t* scrutiny_benchmarks)
-{
-    benchmark_results = malloc(sizeof(scrutiny_benchmark_results_t));
-    memset(benchmark_results, 0, sizeof(scrutiny_benchmark_results_t));
+void scrutiny_run_benchmarks(Scrutiny_Benchmark* scrutiny_benchmarks) {
+    benchmark_results = malloc(sizeof *benchmark_results);
+    memset(benchmark_results, 0, sizeof *benchmark_results);
     
     for (size_t benchmark = 0; scrutiny_benchmarks[benchmark] != NULL; benchmark++)
         scrutiny_benchmarks[benchmark]();
 }
 
-void scrutiny_run_benchmarks_n_times(scrutiny_benchmark_t* scrutiny_benchmarks, size_t n)
-{
-    benchmark_results = malloc(sizeof(scrutiny_benchmark_results_t));
-    memset(benchmark_results, 0, sizeof(scrutiny_benchmark_results_t));
+void scrutiny_run_benchmarks_n_times(Scrutiny_Benchmark* scrutiny_benchmarks, size_t n) {
+    benchmark_results = malloc(sizeof *benchmark_results);
+    memset(benchmark_results, 0, sizeof *benchmark_results);
     
     for (size_t benchmark = 0; scrutiny_benchmarks[benchmark] != NULL; benchmark++)
         for (size_t i = 0; i < n; i++)
             scrutiny_benchmarks[benchmark]();
 }
 
-scrutiny_test_results_t* scrutiny_get_test_results(void)
-{
+Scrutiny_TestResults* scrutiny_get_test_results(void) {
     return test_results;
 }
 
-scrutiny_benchmark_results_t* scrutiny_get_benchmark_results(void)
-{
+Scrutiny_BenchmarkResults* scrutiny_get_benchmark_results(void) {
     return benchmark_results;
 }
 
-scrutiny_error_t scrutiny_output_test_results(file_t* out_file)
-{
+Scrutiny_Error scrutiny_output_test_results(File* out_file) {
     if (out_file == NULL)
         return SCRUTINY_ERROR_INVALID_ARGUMENT;
 
@@ -259,14 +236,12 @@ scrutiny_error_t scrutiny_output_test_results(file_t* out_file)
     for (size_t i = 0; i < test_results->failed_tests; i++)
         fprintf(out_file, SCRUTINY_TEXT_ITALIC "\t%s\n" SCRUTINY_TEXT_NORMAL, test_results->failed_test_names[i]);
 
-    if (test_results->passed_cases > 0)
-    {
+    if (test_results->passed_cases > 0) {
         fprintf(out_file, "\n(" SCRUTINY_TEXT_GREEN "" SCRUTINY_TEXT_NORMAL ") %zu of %zu tests passed (%2.1Lf%%).", test_results->passed_tests, test_results->passed_tests + test_results->failed_tests, percent_passed);
         fprintf(out_file, "\t(" SCRUTINY_TEXT_GREEN "" SCRUTINY_TEXT_NORMAL ") %zu of %zu test cases passed (%2.1Lf%%).\n", test_results->passed_cases, test_results->passed_cases + test_results->failed_cases, percent_cases_passed);
     }
 
-    if (test_results->failed_cases > 0)
-    {
+    if (test_results->failed_cases > 0) {
         fprintf(out_file, "(" SCRUTINY_TEXT_RED "x" SCRUTINY_TEXT_NORMAL ") %zu of %zu tests failed (%2.1Lf%%).", test_results->failed_tests, test_results->passed_tests + test_results->passed_tests, percent_failed);
         fprintf(out_file, "\t(" SCRUTINY_TEXT_RED "x" SCRUTINY_TEXT_NORMAL ") %zu of %zu test cases failed (%2.1Lf%%).\n", test_results->failed_cases, test_results->passed_cases + test_results->failed_cases, percent_cases_failed);
     }
@@ -279,34 +254,29 @@ scrutiny_error_t scrutiny_output_test_results(file_t* out_file)
     return SCRUTINY_ERROR_NONE;
 }
 
-scrutiny_error_t scrutiny_output_benchmark_results(file_t* out_file)
-{
+Scrutiny_Error scrutiny_output_benchmark_results(File* out_file) {
     if (out_file == NULL)
         return SCRUTINY_ERROR_INVALID_ARGUMENT;
 
     size_t unique_benchmarks = 0;
-    in_progress_average_t* average_times = NULL;
+    InProgressAverage* average_times = NULL;
     const char** unique_benchmarks_names = NULL;
 
-    for (size_t benchmark = 0; benchmark < benchmark_results->benchmarks; benchmark++)
-    {
+    for (size_t benchmark = 0; benchmark < benchmark_results->benchmarks; benchmark++) {
         bool unique = true;
         size_t index_non_unique;
 
-        for (index_non_unique = 0; index_non_unique < unique_benchmarks; index_non_unique++)
-        {
-            if (compare_null_terminated_strings(benchmark_results->benchmark_names[benchmark], unique_benchmarks_names[index_non_unique]))
-            {
+        for (index_non_unique = 0; index_non_unique < unique_benchmarks; index_non_unique++) {
+            if (compare_null_terminated_strings(benchmark_results->benchmark_names[benchmark], unique_benchmarks_names[index_non_unique])) {
                 unique = false;
                 break;
             }
         }
 
-        if (unique)
-        {
+        if (unique) {
             unique_benchmarks++;
             unique_benchmarks_names = reallocarray(unique_benchmarks_names, unique_benchmarks, sizeof(char*));
-            average_times = reallocarray(average_times, unique_benchmarks, sizeof(in_progress_average_t));
+            average_times = reallocarray(average_times, unique_benchmarks, sizeof(InProgressAverage));
             unique_benchmarks_names[unique_benchmarks - 1] = benchmark_results->benchmark_names[benchmark];
             average_times[unique_benchmarks - 1].running_total = benchmark_results->benchmark_times[benchmark];
             average_times[unique_benchmarks - 1].divisor = 1;
@@ -319,9 +289,8 @@ scrutiny_error_t scrutiny_output_benchmark_results(file_t* out_file)
 
     fprintf(out_file, "Scrutiny ran %zu unique benchmarks for a total of %zu benchmark runs.\n\n", unique_benchmarks, benchmark_results->benchmarks);
 
-    for (size_t i = 0; i < unique_benchmarks; i++)
-    {
-        clock_t average_time = average_times[i].running_total / average_times[i].divisor;
+    for (size_t i = 0; i < unique_benchmarks; i++) {
+        Clock average_time = average_times[i].running_total / average_times[i].divisor;
         long double average_seconds = (long double)average_time / (long double)CLOCKS_PER_SEC;
 
         if (average_seconds < 0.1)
@@ -336,8 +305,7 @@ scrutiny_error_t scrutiny_output_benchmark_results(file_t* out_file)
     return SCRUTINY_ERROR_NONE;
 }
 
-scrutiny_error_t scrutiny_output_test_results_parsable(file_t* out_file)
-{
+Scrutiny_Error scrutiny_output_test_results_parsable(File* out_file) {
     if (out_file == NULL)
         return SCRUTINY_ERROR_INVALID_ARGUMENT;
 
@@ -369,8 +337,7 @@ scrutiny_error_t scrutiny_output_test_results_parsable(file_t* out_file)
     return SCRUTINY_ERROR_NONE;
 }
 
-scrutiny_error_t scrutiny_output_benchmark_results_parsable(file_t* file)
-{
+Scrutiny_Error scrutiny_output_benchmark_results_parsable(File* file) {
     if (file == NULL)
         return SCRUTINY_ERROR_INVALID_ARGUMENT;
 
@@ -383,18 +350,15 @@ scrutiny_error_t scrutiny_output_benchmark_results_parsable(file_t* file)
     return SCRUTINY_ERROR_NONE;
 }
 
-void scrutiny_clear_results(void)
-{
-    if (test_results != NULL)
-    {
+void scrutiny_clear_results(void) {
+    if (test_results != NULL) {
         free(test_results->passed_test_names);
         free(test_results->failed_test_names);
         free(test_results->file_names);
         free(test_results);
     }
 
-    if (benchmark_results != NULL)
-    {
+    if (benchmark_results != NULL) {
         free(benchmark_results->benchmark_names);
         free(benchmark_results->benchmark_times);
         free(benchmark_results->file_names);
@@ -405,8 +369,7 @@ void scrutiny_clear_results(void)
     benchmark_results = NULL;
 }
 
-void scrutiny_report_assert_pass(const char* file, const char* function)
-{
+void scrutiny_report_assert_pass(const char* file, const char* function) {
     if (test_results == NULL)
         return;
     
@@ -414,8 +377,7 @@ void scrutiny_report_assert_pass(const char* file, const char* function)
     succeeded_test_expand_and_add(function);
 }
 
-void scrutiny_report_assert_fail(const char* file, const char* function, size_t line)
-{
+void scrutiny_report_assert_fail(const char* file, const char* function, size_t line) {
     if (test_results == NULL)
     {
         printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nASSERTION FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed in " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, __func__, function, line);
@@ -429,22 +391,17 @@ void scrutiny_report_assert_fail(const char* file, const char* function, size_t 
     printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, function, __func__, line);
 }
 
-void scrutiny_report_assert_true(bool expression, const char* file, const char* function, size_t line)
-{
-    if (test_results == NULL && !expression)
-    {
+void scrutiny_report_assert_true(bool expression, const char* file, const char* function, size_t line) {
+    if (test_results == NULL && !expression) {
         printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nASSERTION FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed in " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, __func__, function, line);
         exit(EXIT_FAILURE);
-    }
-    else if (test_results == NULL)
-    {
+    } else if (test_results == NULL) {
         return;
     }
 
     test_file_expand_and_add(file);
 
-    if (!expression)
-    {
+    if (!expression) {
         succeeded_test_contract_and_remove(function);
         failed_test_expand_and_add(function);
         printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, function, __func__, line);
@@ -454,22 +411,17 @@ void scrutiny_report_assert_true(bool expression, const char* file, const char* 
     succeeded_test_expand_and_add(function);
 }
 
-void scrutiny_report_assert_false(bool expression, const char* file, const char* function, size_t line)
-{
-    if (test_results == NULL && expression)
-    {
+void scrutiny_report_assert_false(bool expression, const char* file, const char* function, size_t line) {
+    if (test_results == NULL && expression) {
         printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nASSERTION FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed in " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, __func__, function, line);
         exit(EXIT_FAILURE);
-    }
-    else if (test_results == NULL)
-    {
+    } else if (test_results == NULL) {
         return;
     }
 
     test_file_expand_and_add(file);
 
-    if (expression)
-    {
+    if (expression) {
         succeeded_test_contract_and_remove(function);
         failed_test_expand_and_add(function);
         printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, function, __func__, line);
@@ -479,19 +431,15 @@ void scrutiny_report_assert_false(bool expression, const char* file, const char*
     succeeded_test_expand_and_add(function);
 }
 
-void scrutiny_report_assert_equal_ptr_data(void* expected, void* actual, size_t struct_size, const char* file, const char* function, size_t line)
-{
+void scrutiny_report_assert_equal_ptr_data(void* expected, void* actual, size_t struct_size, const char* file, const char* function, size_t line) {
     test_file_expand_and_add(file);
 
     uint8_t* expected_bytes = (uint8_t*)expected;
     uint8_t* actual_bytes = (uint8_t*)actual;
 
-    for (size_t i = 0; i < struct_size; i++)
-    {
-        if (expected_bytes[i] != actual_bytes[i])
-        {
-            if (test_results == NULL)
-            {
+    for (size_t i = 0; i < struct_size; i++) {
+        if (expected_bytes[i] != actual_bytes[i]) {
+            if (test_results == NULL) {
                 printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nASSERTION FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed in " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, __func__, function, line);
                 printf("\tExpected:  %u at byte %zu\n", expected_bytes[i], i);
                 printf("\tActual:    %u\n", actual_bytes[i]);
@@ -510,19 +458,15 @@ void scrutiny_report_assert_equal_ptr_data(void* expected, void* actual, size_t 
     succeeded_test_expand_and_add(function);
 }
 
-void scrutiny_report_assert_equal_array(void* expected, void* actual, size_t sizeof_type, size_t array_length, const char* file, const char* function, size_t line)
-{
+void scrutiny_report_assert_equal_array(void* expected, void* actual, size_t sizeof_type, size_t array_length, const char* file, const char* function, size_t line) {
     test_file_expand_and_add(file);
 
     uint8_t* expected_bytes = (uint8_t*)expected;
     uint8_t* actual_bytes = (uint8_t*)actual;
 
-    for (size_t byte = 0; byte < sizeof_type * array_length; byte++)
-    {
-        if (expected_bytes[byte] != actual_bytes[byte])
-        {
-            if (test_results == NULL)
-            {
+    for (size_t byte = 0; byte < sizeof_type * array_length; byte++) {
+        if (expected_bytes[byte] != actual_bytes[byte]) {
+            if (test_results == NULL) {
                 printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nASSERTION FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed in " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, __func__, function, line);
                 printf("\tDifference at index: %zu\n", byte / sizeof_type);
                 exit(EXIT_FAILURE);
@@ -539,12 +483,10 @@ void scrutiny_report_assert_equal_array(void* expected, void* actual, size_t siz
     succeeded_test_expand_and_add(function);
 }
 
-void scrutiny_report_assert_equal_string(char* expected, char* actual, const char* file, const char* function, size_t line)
-{
+void scrutiny_report_assert_equal_string(char* expected, char* actual, const char* file, const char* function, size_t line) {
     test_file_expand_and_add(file);
 
-    if (!compare_null_terminated_strings(expected, actual))
-    {
+    if (!compare_null_terminated_strings(expected, actual)) {
         succeeded_test_contract_and_remove(function);
         failed_test_expand_and_add(function);
         failed_test_print_failure(expected, actual, file, function, line, __func__);
@@ -554,16 +496,12 @@ void scrutiny_report_assert_equal_string(char* expected, char* actual, const cha
     succeeded_test_expand_and_add(function);
 }
 
-void scrutiny_report_assert_equal_non_terminated_string(char* expected, char* actual, size_t size, const char* file, const char* function, size_t line)
-{
+void scrutiny_report_assert_equal_non_terminated_string(char* expected, char* actual, size_t size, const char* file, const char* function, size_t line) {
     test_file_expand_and_add(file);
 
-    for (size_t i = 0; i < size; i++)
-    {
-        if (expected[i] != actual[i])
-        {
-            if (test_results == NULL)
-            {
+    for (size_t i = 0; i < size; i++) {
+        if (expected[i] != actual[i]) {
+            if (test_results == NULL) {
                 printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nASSERTION FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed in " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, __func__, function, line);
                 printf("\tExpected:  %c at index %zu\n", expected[i], i);
                 printf("\tActual:    %c\n", actual[i]);
@@ -582,17 +520,14 @@ void scrutiny_report_assert_equal_non_terminated_string(char* expected, char* ac
     succeeded_test_expand_and_add(function);
 }
 
-void scrutiny_report_assert_not_equal_ptr_data(void* expected, void* actual, size_t struct_size, const char* file, const char* function, size_t line)
-{
+void scrutiny_report_assert_not_equal_ptr_data(void* expected, void* actual, size_t struct_size, const char* file, const char* function, size_t line) {
     test_file_expand_and_add(file);
 
     uint8_t* expected_bytes = (uint8_t*)expected;
     uint8_t* actual_bytes = (uint8_t*)actual;
 
-    for (size_t i = 0; i < struct_size; i++)
-    {
-        if (expected_bytes[i] != actual_bytes[i])
-        {
+    for (size_t i = 0; i < struct_size; i++) {
+        if (expected_bytes[i] != actual_bytes[i]) {
             succeeded_test_expand_and_add(function);
             return;
         }
@@ -607,17 +542,14 @@ void scrutiny_report_assert_not_equal_ptr_data(void* expected, void* actual, siz
         printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, function, __func__, line);
 }
 
-void scrutiny_report_assert_not_equal_array(void* expected, void* actual, size_t sizeof_type, size_t array_length, const char* file, const char* function, size_t line)
-{
+void scrutiny_report_assert_not_equal_array(void* expected, void* actual, size_t sizeof_type, size_t array_length, const char* file, const char* function, size_t line) {
     test_file_expand_and_add(file);
 
     uint8_t* expected_bytes = (uint8_t*)expected;
     uint8_t* actual_bytes = (uint8_t*)actual;
 
-    for (size_t byte = 0; byte < sizeof_type * array_length; byte++)
-    {
-        if (expected_bytes[byte] != actual_bytes[byte])
-        {
+    for (size_t byte = 0; byte < sizeof_type * array_length; byte++) {
+        if (expected_bytes[byte] != actual_bytes[byte]) {
             succeeded_test_expand_and_add(function);
             return;
         }
@@ -632,12 +564,10 @@ void scrutiny_report_assert_not_equal_array(void* expected, void* actual, size_t
         printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, function, __func__, line);
 }
 
-void scrutiny_report_assert_not_equal_string(char* expected, char* actual, const char* file, const char* function, size_t line)
-{
+void scrutiny_report_assert_not_equal_string(char* expected, char* actual, const char* file, const char* function, size_t line) {
     test_file_expand_and_add(file);
 
-    if (compare_null_terminated_strings(expected, actual))
-    {
+    if (compare_null_terminated_strings(expected, actual)) {
         succeeded_test_contract_and_remove(function);
         failed_test_expand_and_add(function);
         failed_test_print_failure(expected, actual, file, function, line, __func__);
@@ -647,14 +577,11 @@ void scrutiny_report_assert_not_equal_string(char* expected, char* actual, const
     succeeded_test_expand_and_add(function);
 }
 
-void scrutiny_report_assert_not_equal_non_terminated_string(char* expected, char* actual, size_t size, const char* file, const char* function, size_t line)
-{
+void scrutiny_report_assert_not_equal_non_terminated_string(char* expected, char* actual, size_t size, const char* file, const char* function, size_t line) {
     test_file_expand_and_add(file);
 
-    for (size_t i = 0; i < size; i++)
-    {
-        if (expected[i] != actual[i])
-        {
+    for (size_t i = 0; i < size; i++) {
+        if (expected[i] != actual[i]) {
             succeeded_test_expand_and_add(function);
             return;
         }
@@ -713,7 +640,7 @@ void scrutiny_report_assert_equal_intmax_t(intmax_t expected, intmax_t actual, c
 void scrutiny_report_assert_equal_uintmax_t(uintmax_t expected, uintmax_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
 void scrutiny_report_assert_equal_size_t(size_t expected, size_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, expected, actual, file, function, line); }
 void scrutiny_report_assert_equal_ssize_t(ssize_t expected, ssize_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
-void scrutiny_report_assert_equal_enum(enum_value_t expected, enum_value_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
+void scrutiny_report_assert_equal_enum(EnumValue expected, EnumValue actual, const char* file, const char* function, size_t line) { assert_signed_generic(==, expected, actual, file, function, line); }
 void scrutiny_report_assert_equal_ptr(void* expected, void* actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(==, (uintptr_t)expected, (uintptr_t)actual, file, function, line); }
 
 void scrutiny_report_assert_not_equal_char(char expected, char actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
@@ -759,7 +686,7 @@ void scrutiny_report_assert_not_equal_intmax_t(intmax_t expected, intmax_t actua
 void scrutiny_report_assert_not_equal_uintmax_t(uintmax_t expected, uintmax_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
 void scrutiny_report_assert_not_equal_size_t(size_t expected, size_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, expected, actual, file, function, line); }
 void scrutiny_report_assert_not_equal_ssize_t(ssize_t expected, ssize_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
-void scrutiny_report_assert_not_equal_enum(enum_value_t expected, enum_value_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
+void scrutiny_report_assert_not_equal_enum(EnumValue expected, EnumValue actual, const char* file, const char* function, size_t line) { assert_signed_generic(!=, expected, actual, file, function, line); }
 void scrutiny_report_assert_not_equal_ptr(void* expected, void* actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(!=, (uintptr_t)expected, (uintptr_t)actual, file, function, line); }
 
 void scrutiny_report_assert_greater_than_char(char expected, char actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
@@ -805,7 +732,7 @@ void scrutiny_report_assert_greater_than_intmax_t(intmax_t expected, intmax_t ac
 void scrutiny_report_assert_greater_than_uintmax_t(uintmax_t expected, uintmax_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
 void scrutiny_report_assert_greater_than_size_t(size_t expected, size_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, expected, actual, file, function, line); }
 void scrutiny_report_assert_greater_than_ssize_t(ssize_t expected, ssize_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
-void scrutiny_report_assert_greater_than_enum(enum_value_t expected, enum_value_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
+void scrutiny_report_assert_greater_than_enum(EnumValue expected, EnumValue actual, const char* file, const char* function, size_t line) { assert_signed_generic(>, expected, actual, file, function, line); }
 void scrutiny_report_assert_greater_than_ptr(void* expected, void* actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(>, (uintptr_t)expected, (uintptr_t)actual, file, function, line); }
 
 void scrutiny_report_assert_less_than_char(char expected, char actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
@@ -851,11 +778,10 @@ void scrutiny_report_assert_less_than_intmax_t(intmax_t expected, intmax_t actua
 void scrutiny_report_assert_less_than_uintmax_t(uintmax_t expected, uintmax_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
 void scrutiny_report_assert_less_than_size_t(size_t expected, size_t actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, expected, actual, file, function, line); }
 void scrutiny_report_assert_less_than_ssize_t(ssize_t expected, ssize_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
-void scrutiny_report_assert_less_than_enum(enum_value_t expected, enum_value_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
+void scrutiny_report_assert_less_than_enum(EnumValue expected, EnumValue actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
 void scrutiny_report_assert_less_than_ptr(void* expected, void* actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, (uintptr_t)expected, (uintptr_t)actual, file, function, line); }
 
-void scrutiny_report_benchmark_time(clock_t time, const char* file, const char* function, size_t line)
-{
+void scrutiny_report_benchmark_time(Clock time, const char* file, const char* function, size_t line) {
     benchmark_run_expand_and_add(function, file, time);
 }
 
