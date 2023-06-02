@@ -49,7 +49,7 @@ SCRUTINY_UNIT_TEST not_equal_test(void)
 
 int main()
 {
-    scrutiny_unit_test_t scrutiny_unit_tests[] = 
+    Scrutiny_UnitTest scrutiny_unit_tests[] = 
     {
         add_test,        /* Pointer to our unit test. */
         increment_test,  /* Another test. */
