@@ -47,6 +47,44 @@ SCRUTINY_UNIT_TEST not_equal_test(void)
     scrutiny_assert_not_equal_array(arr1, arr2, sizeof(int), 3);
 }
 
+/*
+ * For this next bit we need to create a struct and custom comparison.
+ */
+
+struct _MyStruct {
+    int value;
+    bool unequal;
+};
+
+typedef struct _MyStruct MyStruct;
+
+Scrutiny_ComparisonResult compare_my_struct(MyStruct* left, MyStruct* right) {
+    if (left->unequal || right->unequal) {
+        return SCRUTINY_UNEQUAL;
+    }
+
+    if (left->value > right->value) {
+        return SCRUTINY_GREATOR_THAN;
+    }
+
+    if (left->value < right->value) {
+        return SCRUTINY_LESS_THAN;
+    }
+
+    return SCRUTINY_EQUAL;
+}
+
+SCRUTINY_UNIT_TEST custom_compare_test() {
+    MyStruct a = { .value = 3, .unequal = false };
+    MyStruct b = { .value = 0, .unequal = false };
+
+    scrutiny_assert_greator_than_struct(&a, &b, (Scrutiny_CompareFunction)compare_my_struct);
+
+    a.unequal = true;
+
+    scrutiny_assert_not_equal_struct(&a, &b, (Scrutiny_CompareFunction)compare_my_struct);
+}
+
 int main()
 {
     Scrutiny_UnitTest scrutiny_unit_tests[] = 
