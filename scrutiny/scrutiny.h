@@ -86,8 +86,8 @@
 #define scrutiny_assert_equal_uintptr_t(expected, actual) scrutiny_report_assert_equal_uintptr_t(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_equal_intmax_t(expected, actual) scrutiny_report_assert_equal_intmax_t(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_equal_uintmax_t(expected, actual) scrutiny_report_assert_equal_uintmax_t(expected, actual, __FILE__, __func__, __LINE__)
-#define scrutiny_assert_equal_usize(expected, actual) scrutiny_report_assert_equal_usize(expected, actual, __FILE__, __func__, __LINE__)
-#define scrutiny_assert_equal_size(expected, actual) scrutiny_report_assert_equal_size(expected, actual, __FILE__, __func__, __LINE__)
+#define scrutiny_assert_equal_size_t(expected, actual) scrutiny_report_assert_equal_size_t(expected, actual, __FILE__, __func__, __LINE__)
+#define scrutiny_assert_equal_ssize_t(expected, actual) scrutiny_report_assert_equal_ssize_t(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_equal_enum(expected, actual) scrutiny_report_assert_equal_enum(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_equal_ptr(expected, actual) scrutiny_report_assert_equal_ptr(expected, actual, __FILE__, __func__, __LINE__)
 
@@ -132,8 +132,8 @@
 #define scrutiny_assert_not_equal_uintptr_t(expected, actual) scrutiny_report_assert_not_equal_uintptr_t(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_not_equal_intmax_t(expected, actual) scrutiny_report_assert_not_equal_intmax_t(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_not_equal_uintmax_t(expected, actual) scrutiny_report_assert_not_equal_uintmax_t(expected, actual, __FILE__, __func__, __LINE__)
-#define scrutiny_assert_not_equal_usize(expected, actual) scrutiny_report_assert_not_equal_usize(expected, actual, __FILE__, __func__, __LINE__)
-#define scrutiny_assert_not_equal_size(expected, actual) scrutiny_report_assert_not_equal_size(expected, actual, __FILE__, __func__, __LINE__)
+#define scrutiny_assert_not_equal_size_t(expected, actual) scrutiny_report_assert_not_equal_size_t(expected, actual, __FILE__, __func__, __LINE__)
+#define scrutiny_assert_not_equal_ssize_t(expected, actual) scrutiny_report_assert_not_equal_ssize_t(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_not_equal_enum(expected, actual) scrutiny_report_assert_not_equal_enum(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_not_equal_ptr(expected, actual) scrutiny_report_assert_not_equal_ptr(expected, actual, __FILE__, __func__, __LINE__)
 
@@ -178,8 +178,8 @@
 #define scrutiny_assert_greater_than_uintptr_t(expected, actual) scrutiny_report_assert_greater_than_uintptr_t(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_greater_than_intmax_t(expected, actual) scrutiny_report_assert_greater_than_intmax_t(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_greater_than_uintmax_t(expected, actual) scrutiny_report_assert_greater_than_uintmax_t(expected, actual, __FILE__, __func__, __LINE__)
-#define scrutiny_assert_greater_than_usize(expected, actual) scrutiny_report_assert_greater_than_usize(expected, actual, __FILE__, __func__, __LINE__)
-#define scrutiny_assert_greater_than_size(expected, actual) scrutiny_report_assert_greater_than_size(expected, actual, __FILE__, __func__, __LINE__)
+#define scrutiny_assert_greater_than_size_t(expected, actual) scrutiny_report_assert_greater_than_size_t(expected, actual, __FILE__, __func__, __LINE__)
+#define scrutiny_assert_greater_than_ssize_t(expected, actual) scrutiny_report_assert_greater_than_ssize_t(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_greater_than_enum(expected, actual) scrutiny_report_assert_greater_than_enum(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_greater_than_ptr(expected, actual) scrutiny_report_assert_greater_than_ptr(expected, actual, __FILE__, __func__, __LINE__)
 
@@ -224,10 +224,19 @@
 #define scrutiny_assert_less_than_uintptr_t(expected, actual) scrutiny_report_assert_less_than_uintptr_t(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_less_than_intmax_t(expected, actual) scrutiny_report_assert_less_than_intmax_t(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_less_than_uintmax_t(expected, actual) scrutiny_report_assert_less_than_uintmax_t(expected, actual, __FILE__, __func__, __LINE__)
-#define scrutiny_assert_less_than_usize(expected, actual) scrutiny_report_assert_less_than_usize(expected, actual, __FILE__, __func__, __LINE__)
-#define scrutiny_assert_less_than_size(expected, actual) scrutiny_report_assert_less_than_size(expected, actual, __FILE__, __func__, __LINE__)
+#define scrutiny_assert_less_than_size_t(expected, actual) scrutiny_report_assert_less_than_size_t(expected, actual, __FILE__, __func__, __LINE__)
+#define scrutiny_assert_less_than_ssize_t(expected, actual) scrutiny_report_assert_less_than_ssize_t(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_less_than_enum(expected, actual) scrutiny_report_assert_less_than_enum(expected, actual, __FILE__, __func__, __LINE__)
 #define scrutiny_assert_less_than_ptr(expected, actual) scrutiny_report_assert_less_than_ptr(expected, actual, __FILE__, __func__, __LINE__)
+
+#define scrutiny_assert_equal_struct(expected, actual, comp_function) \
+scrutiny_report_assert_equal_struct(expected, actual, comp_function, __FILE__, __func__, __LINE__)
+#define scrutiny_assert_not_equal_struct(expected, actual, comp_function) \
+scrutiny_report_assert_not_equal_struct(expected, actual, comp_function, __FILE__, __func__, __LINE__)
+#define scrutiny_assert_greator_than_struct(expected, actual, comp_function) \
+scrutiny_report_assert_greator_than_struct(expected, actual, comp_function, __FILE__, __func__, __LINE__)
+#define scrutiny_assert_less_than_struct(expected, actual, comp_function) \
+scrutiny_report_assert_less_than_struct(expected, actual, comp_function, __FILE__, __func__, __LINE__)
 
 /* 
  * Use these macros in such a way that your benchmark may setup before starting
@@ -243,34 +252,56 @@ enum _Scrutiny_Error {
     SCRUTINY_ERROR_COULDNT_WRITE_TO_FILE
 };
 
+enum _Scrutiny_ComparisonResult {
+    SCRUTINY_GREATOR_THAN = 1,
+    SCRUTINY_EQUAL = 0,
+    SCRUTINY_LESS_THAN = -1,
+    SCRUTINY_UNEQUAL = INT8_MAX,
+    SCRUTINY_COMPARISON_FAILURE = INT8_MIN,
+};
+
 typedef FILE File;
 typedef int EnumValue;
-typedef size_t usize;
-typedef ssize_t size;
 typedef clock_t Clock;
 typedef void (*Scrutiny_UnitTest)(void);
 typedef void (*Scrutiny_Benchmark)(void);
 typedef enum _Scrutiny_Error Scrutiny_Error;
+typedef enum _Scrutiny_ComparisonResult Scrutiny_ComparisonResult;
 typedef struct _Scrutiny_TestResults Scrutiny_TestResults;
 typedef struct _Scrutiny_BenchmarkResults Scrutiny_BenchmarkResults;
 
+/*
+ * A function for comparing two custom types, takes a pointer to each object.
+ * Should return a comparison result. If returning a comparison failure any 
+ * assertion using the comparison function will fail. The unequal variant is for
+ * comparisons that do not produce a greator or less result and for a not equal
+ * assertion to succeed any return value other than equal or failure will 
+ * suffice.
+ */
+typedef Scrutiny_ComparisonResult (*Scrutiny_CompareFunction)(void*, void*);
+
 struct _Scrutiny_TestResults {
-    usize failed_cases;
-    usize passed_cases;
-    usize failed_tests;
-    usize passed_tests;
-    usize files;
+    size_t failed_cases;
+    size_t passed_cases;
+    size_t failed_tests;
+    size_t passed_tests;
+    size_t files;
     const char** failed_test_names;
     const char** passed_test_names;
     const char** file_names;
 };
 
 struct _Scrutiny_BenchmarkResults {
-    usize benchmarks;
+    size_t benchmarks;
     Clock* benchmark_times;
     const char** benchmark_names;
     const char** file_names;
 };
+
+/*
+ * Get the name of a comparison result as a constant c string.
+ */
+const char* scrutiny_comparison_result_get_name(Scrutiny_ComparisonResult comp_result);
 
 /*
  * Runs all given test functions and prints the results.
@@ -290,7 +321,7 @@ void scrutiny_run_benchmarks(Scrutiny_Benchmark* scrutiny_benchmarks);
 /*
  * Like scrutiny_run_benchmarks() but runs all benchmarks multiple times.
  */
-void scrutiny_run_benchmarks_n_times(Scrutiny_Benchmark* scrutiny_benchmarks, usize n);
+void scrutiny_run_benchmarks_n_times(Scrutiny_Benchmark* scrutiny_benchmarks, size_t n);
 
 /*
  * Gets the results of previously run tests.
@@ -395,8 +426,8 @@ void scrutiny_report_assert_equal_intptr_t(intptr_t expected, intptr_t actual, c
 void scrutiny_report_assert_equal_uintptr_t(uintptr_t expected, uintptr_t actual, const char* file, const char* function, size_t line); /* Checks if expected is equivilant to actual. */
 void scrutiny_report_assert_equal_intmax_t(intmax_t expected, intmax_t actual, const char* file, const char* function, size_t line); /* Checks if expected is equivilant to actual. */
 void scrutiny_report_assert_equal_uintmax_t(uintmax_t expected, uintmax_t actual, const char* file, const char* function, size_t line); /* Checks if expected is equivilant to actual. */
-void scrutiny_report_assert_equal_usize(usize expected, usize actual, const char* file, const char* function, size_t line); /* Checks if expected is equal to actual. */
-void scrutiny_report_assert_equal_size(size expected, size actual, const char* file, const char* function, size_t line); /* Checks if expected is equal to actual. */
+void scrutiny_report_assert_equal_size_t(size_t expected, size_t actual, const char* file, const char* function, size_t line); /* Checks if expected is equal to actual. */
+void scrutiny_report_assert_equal_ssize_t(ssize_t expected, ssize_t actual, const char* file, const char* function, size_t line); /* Checks if expected is equal to actual. */
 void scrutiny_report_assert_equal_enum(EnumValue expected, EnumValue actual, const char* file, const char* function, size_t line); /* Checks if two enum values (ints) are the same. */
 void scrutiny_report_assert_equal_ptr(void* expected, void* actual, const char* file, const char* function, size_t line); /* Checks if the expected pointer and actual pointer are the same. */
 
@@ -441,8 +472,8 @@ void scrutiny_report_assert_not_equal_intptr_t(intptr_t expected, intptr_t actua
 void scrutiny_report_assert_not_equal_uintptr_t(uintptr_t expected, uintptr_t actual, const char* file, const char* function, size_t line); /* Checks if expected is equivilant to actual. */
 void scrutiny_report_assert_not_equal_intmax_t(intmax_t expected, intmax_t actual, const char* file, const char* function, size_t line); /* Checks if expected is equivilant to actual. */
 void scrutiny_report_assert_not_equal_uintmax_t(uintmax_t expected, uintmax_t actual, const char* file, const char* function, size_t line); /* Checks if expected is equivilant to actual. */
-void scrutiny_report_assert_not_equal_usize(usize expected, usize actual, const char* file, const char* function, size_t line); /* Checks if expected is equal to actual. */
-void scrutiny_report_assert_not_equal_size(size expected, size actual, const char* file, const char* function, size_t line); /* Checks if expected is equal to actual. */
+void scrutiny_report_assert_not_equal_size_t(size_t expected, size_t actual, const char* file, const char* function, size_t line); /* Checks if expected is equal to actual. */
+void scrutiny_report_assert_not_equal_ssize_t(ssize_t expected, ssize_t actual, const char* file, const char* function, size_t line); /* Checks if expected is equal to actual. */
 void scrutiny_report_assert_not_equal_enum(EnumValue expected, EnumValue actual, const char* file, const char* function, size_t line); /* Checks if two enum values (ints) are the same. */
 void scrutiny_report_assert_not_equal_ptr(void* expected, void* actual, const char* file, const char* function, size_t line); /* Checks if the expected pointer and actual pointer are the same. */
 
@@ -487,8 +518,8 @@ void scrutiny_report_assert_greater_than_intptr_t(intptr_t expected, intptr_t ac
 void scrutiny_report_assert_greater_than_uintptr_t(uintptr_t expected, uintptr_t actual, const char* file, const char* function, size_t line); /* Checks if expected is greater than actual. */
 void scrutiny_report_assert_greater_than_intmax_t(intmax_t expected, intmax_t actual, const char* file, const char* function, size_t line); /* Checks if expected is greater than actual. */
 void scrutiny_report_assert_greater_than_uintmax_t(uintmax_t expected, uintmax_t actual, const char* file, const char* function, size_t line); /* Checks if expected is greater than actual. */
-void scrutiny_report_assert_greater_than_usize(usize expected, usize actual, const char* file, const char* function, size_t line); /* Checks if expected is greater than actual. */
-void scrutiny_report_assert_greater_than_size(size expected, size actual, const char* file, const char* function, size_t line); /* Checks if expected is greater than actual. */
+void scrutiny_report_assert_greater_than_size_t(size_t expected, size_t actual, const char* file, const char* function, size_t line); /* Checks if expected is greater than actual. */
+void scrutiny_report_assert_greater_than_ssize_t(ssize_t expected, ssize_t actual, const char* file, const char* function, size_t line); /* Checks if expected is greater than actual. */
 void scrutiny_report_assert_greater_than_enum(EnumValue expected, EnumValue actual, const char* file, const char* function, size_t line); /* Checks if the expected enum value is greater than actual. */
 void scrutiny_report_assert_greater_than_ptr(void* expected, void* actual, const char* file, const char* function, size_t line); /* Checks if the expected pointer is greater than the actual pointer. */
 
@@ -533,10 +564,15 @@ void scrutiny_report_assert_less_than_intptr_t(intptr_t expected, intptr_t actua
 void scrutiny_report_assert_less_than_uintptr_t(uintptr_t expected, uintptr_t actual, const char* file, const char* function, size_t line); /* Checks if expected is less than actual. */
 void scrutiny_report_assert_less_than_intmax_t(intmax_t expected, intmax_t actual, const char* file, const char* function, size_t line); /* Checks if expected is less than actual. */
 void scrutiny_report_assert_less_than_uintmax_t(uintmax_t expected, uintmax_t actual, const char* file, const char* function, size_t line); /* Checks if expected is less than actual. */
-void scrutiny_report_assert_less_than_usize(usize expected, usize actual, const char* file, const char* function, size_t line); /* Checks if expected is less than actual. */
-void scrutiny_report_assert_less_than_size(size expected, size actual, const char* file, const char* function, size_t line); /* Checks if expected is less than actual. */
+void scrutiny_report_assert_less_than_size_t(size_t expected, size_t actual, const char* file, const char* function, size_t line); /* Checks if expected is less than actual. */
+void scrutiny_report_assert_less_than_ssize_t(ssize_t expected, ssize_t actual, const char* file, const char* function, size_t line); /* Checks if expected is less than actual. */
 void scrutiny_report_assert_less_than_enum(EnumValue expected, EnumValue actual, const char* file, const char* function, size_t line); /* Checks if the expected enum value is less than actual. */
 void scrutiny_report_assert_less_than_ptr(void* expected, void* actual, const char* file, const char* function, size_t line); /* Checks if the expected pointer is less than the actual pointer. */
+
+void scrutiny_report_assert_equal_struct(void* expected, void* actual, Scrutiny_CompareFunction comp_function, const char* file, const char* function, size_t line);
+void scrutiny_report_assert_not_equal_struct(void* expected, void* actual, Scrutiny_CompareFunction comp_function, const char* file, const char* function, size_t line);
+void scrutiny_report_assert_greator_than_struct(void* expected, void* actual, Scrutiny_CompareFunction comp_function, const char* file, const char* function, size_t line);
+void scrutiny_report_assert_less_than_struct(void* expected, void* actual, Scrutiny_CompareFunction comp_function, const char* file, const char* function, size_t line);
 
 void scrutiny_report_benchmark_time(Clock time, const char* file, const char* function, size_t line); /* Records the given benchmark time. */
 

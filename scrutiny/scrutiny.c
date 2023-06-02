@@ -186,6 +186,20 @@ static void failed_test_print_failure_floating(long double expected, long double
         exit(EXIT_FAILURE);
 }
 
+#define ENUM_VARIANT_STRING_RETURN(VARIANT) \
+case VARIANT: \
+    return "VARIANT"
+
+const char* scrutiny_comparison_result_get_name(Scrutiny_ComparisonResult comp_result) {
+    switch (comp_result) {
+        ENUM_VARIANT_STRING_RETURN(SCRUTINY_GREATOR_THAN);
+        ENUM_VARIANT_STRING_RETURN(SCRUTINY_EQUAL);
+        ENUM_VARIANT_STRING_RETURN(SCRUTINY_LESS_THAN);
+        ENUM_VARIANT_STRING_RETURN(SCRUTINY_UNEQUAL);
+        ENUM_VARIANT_STRING_RETURN(SCRUTINY_COMPARISON_FAILURE);
+    }
+}
+
 void scrutiny_run_tests(Scrutiny_UnitTest* scrutiny_unit_tests) {
     test_results = malloc(sizeof(scrutiny_get_test_results));
     memset(test_results, 0, sizeof(scrutiny_get_test_results));
@@ -780,6 +794,90 @@ void scrutiny_report_assert_less_than_size_t(size_t expected, size_t actual, con
 void scrutiny_report_assert_less_than_ssize_t(ssize_t expected, ssize_t actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
 void scrutiny_report_assert_less_than_enum(EnumValue expected, EnumValue actual, const char* file, const char* function, size_t line) { assert_signed_generic(<, expected, actual, file, function, line); }
 void scrutiny_report_assert_less_than_ptr(void* expected, void* actual, const char* file, const char* function, size_t line) { assert_unsigned_generic(<, (uintptr_t)expected, (uintptr_t)actual, file, function, line); }
+
+/*
+    
+    if (!(expected operator actual)) { \
+        succeeded_test_contract_and_remove(function); \
+        failed_test_expand_and_add(function); \
+        failed_test_print_failure_unsigned_integer(expected, actual, file, function, line, __func__); \
+        return; \
+    }\
+    succeeded_test_expand_and_add(function)
+
+
+
+    if (test_results == NULL)
+        printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nASSERTION FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed in " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, assert, function, line);
+    else
+        printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, function, assert, line);
+
+    printf("\tExpected:  %zu\n", expected);
+    printf("\tActual:    %zu\n", actual);
+
+    if (test_results == NULL)
+        exit(EXIT_FAILURE);
+*/
+
+#define struct_compare(expected, actual, comp_function, file, function, line, assert, success_variant) \
+    Scrutiny_ComparisonResult result; \
+    if ((result = comp_function(expected, actual)) != success_variant) { \
+        succeeded_test_contract_and_remove(function); \
+        failed_test_expand_and_add(function); \
+        if (test_results == NULL) \
+            printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nASSERTION FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed in " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, assert, function, line); \
+        else \
+            printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, function, assert, line); \
+        printf("\tExpected:  %s\n", scrutiny_comparison_result_get_name(success_variant)); \
+        printf("\tActual:    %s\n", scrutiny_comparison_result_get_name(result)); \
+        if (test_results == NULL) \
+            exit(EXIT_FAILURE); \
+        return; \
+    } \
+    succeeded_test_expand_and_add(function);
+
+void scrutiny_report_assert_equal_struct(void* expected, void* actual, Scrutiny_CompareFunction comp_function, const char* file, const char* function, size_t line) {
+    struct_compare(expected, actual, comp_function, file, function, line, __func__, SCRUTINY_EQUAL);
+}
+
+void scrutiny_report_assert_not_equal_struct(void* expected, void* actual, Scrutiny_CompareFunction comp_function, const char* file, const char* function, size_t line) {
+    Scrutiny_ComparisonResult result;
+    
+    if ((result = comp_function(expected, actual)) != SCRUTINY_UNEQUAL
+        || result != SCRUTINY_GREATOR_THAN
+        || result != SCRUTINY_LESS_THAN
+    ) {
+        succeeded_test_contract_and_remove(function); 
+        failed_test_expand_and_add(function); 
+
+        if (test_results == NULL)
+            printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nASSERTION FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed in " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, __func__, function, line);
+        else
+            printf(SCRUTINY_TEXT_RED SCRUTINY_TEXT_BOLD "\nTEST FAILED" SCRUTINY_TEXT_NORMAL " (%s): " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " failed " SCRUTINY_TEXT_ITALIC "%s" SCRUTINY_TEXT_NORMAL " on line %zu\n\n", file, function, __func__, line); \
+
+        printf("\tExpected:  %s or %s or %s\n", 
+            scrutiny_comparison_result_get_name(SCRUTINY_UNEQUAL),
+            scrutiny_comparison_result_get_name(SCRUTINY_GREATOR_THAN),
+            scrutiny_comparison_result_get_name(SCRUTINY_LESS_THAN)
+        );
+        printf("\tActual:    %s\n", scrutiny_comparison_result_get_name(result)); 
+
+        if (test_results == NULL) 
+            exit(EXIT_FAILURE); 
+        return; 
+    } 
+
+    succeeded_test_expand_and_add(function);
+}
+
+void scrutiny_report_assert_greator_than_struct(void* expected, void* actual, Scrutiny_CompareFunction comp_function, const char* file, const char* function, size_t line) {
+    struct_compare(expected, actual, comp_function, file, function, line, __func__, SCRUTINY_GREATOR_THAN);
+}
+
+void scrutiny_report_assert_less_than_struct(void* expected, void* actual, Scrutiny_CompareFunction comp_function, const char* file, const char* function, size_t line) {
+    struct_compare(expected, actual, comp_function, file, function, line, __func__, SCRUTINY_LESS_THAN);
+}
+
 
 void scrutiny_report_benchmark_time(Clock time, const char* file, const char* function, size_t line) {
     benchmark_run_expand_and_add(function, file, time);
