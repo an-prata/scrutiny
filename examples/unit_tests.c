@@ -1,4 +1,7 @@
 #include <stdlib.h>
+
+#define SCRUTINY_DEBUG
+
 #include "../scrutiny/scrutiny.h"
 
 SCRUTINY_UNIT_TEST(addition_test) {

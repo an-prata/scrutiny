@@ -102,6 +102,14 @@ void scrutiny_run_benchmarks(scrutiny_benchmark_t* benchmarks, unsigned int pass
 	}
 }
 
+bool _scrutiny_abort_assert(bool succeeded, const char* assert, const char* condition, const char* file, const char* function, unsigned long line) {
+	if (!succeeded) {
+		printf(TEXT_RED TEXT_BOLD "ASSERT FAILED " TEXT_NORMAL TEXT_ITALIC "%s(%s) " TEXT_NORMAL ": " TEXT_ITALIC "line %zu " TEXT_NORMAL "of " TEXT_ITALIC "%s " TEXT_NORMAL "in " TEXT_BLUE TEXT_ITALIC "%s\n" TEXT_NORMAL, assert, condition, line, file, function);
+	}
+
+	exit(EXIT_FAILURE);
+}
+
 bool _scrutiny_record_assert(scrutiny_test_run_t* test_run, bool succeeded, const char* assert, const char* condition, const char* file, const char* function, unsigned long line) {
 	if (test_run->previous_function != function) {
 		if (!succeeded && test_run->previous_function) {

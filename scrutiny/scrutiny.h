@@ -1,6 +1,14 @@
 // Copyright (c) 2023 Evan Overman (https://an-prata.it). Licensed under the MIT License.
 // See LICENSE file in repository root for complete license text.
 
+/*
+ * scrutiny.h
+ *
+ * You may define the SCRUTINY_TEST macro to make assertions behave in a testing
+ * manor. Without this definition they will behave like the standard library's
+ * `assert()` during the program's runtime.
+ */
+
 #ifndef SCRUTINY_H
 #define SCRUTINY_H
 
@@ -40,24 +48,45 @@
 _scrutiny_bench_run->current_function = __func__; \
 return TEXT_ITALIC __FILE__ TEXT_NORMAL ": " 
 
-#define scrutiny_assert(a) \
-_scrutiny_assert(a, __FILE__, __func__, __LINE__)
-#define scrutiny_assert_equal(a, b) \
-_scrutiny_assert_equal(a, b, __FILE__, __func__, __LINE__)
-#define scrutiny_assert_not_equal(a, b) \
-_scrutiny_assert_not_equal(a, b, __FILE__, __func__, __LINE__)
-#define scrutiny_assert_greater_than(a, b) \
-_scrutiny_assert_greater_than(a, b, __FILE__, __func__, __LINE__)
-#define scrutiny_assert_less_than(a, b) \
-_scrutiny_assert_less_than(a, b, __FILE__, __func__, __LINE__)
-#define scrutiny_assert_greater_than_or_equal(a, b) \
-_scrutiny_assert_greater_than_or_equal(a, b, "scrutiny_assert_greater_than_or_equal", __FILE__, __func__, __LINE__)
-#define scrutiny_assert_less_thanor_equal(a, b) \
-_scrutiny_assert_less_than_or_equal(a, b, "scrutiny_assert_less_thanor_equal", __FILE__, __func__, __LINE__)
-#define scrutiny_assert_no_less_than(a, b) \
-_scrutiny_assert_greater_than_or_equal(a, b, "scrutiny_assert_no_less_than", __FILE__, __func__, __LINE__)
-#define scrutiny_assert_no_greater_than(a, b) \
-_scrutiny_assert_less_than_or_equal(a, b, "scrutiny_assert_no_greater_than", __FILE__, __func__, __LINE__)
+#ifdef SCRUTINY_DEBUG
+	#define scrutiny_assert(a) \
+	_scrutiny_assert(a, __FILE__, __func__, __LINE__)
+	#define scrutiny_assert_equal(a, b) \
+	_scrutiny_assert_equal(a, b, __FILE__, __func__, __LINE__)
+	#define scrutiny_assert_not_equal(a, b) \
+	_scrutiny_assert_not_equal(a, b, __FILE__, __func__, __LINE__)
+	#define scrutiny_assert_greater_than(a, b) \
+	_scrutiny_assert_greater_than(a, b, __FILE__, __func__, __LINE__)
+	#define scrutiny_assert_less_than(a, b) \
+	_scrutiny_assert_less_than(a, b, __FILE__, __func__, __LINE__)
+	#define scrutiny_assert_greater_than_or_equal(a, b) \
+	_scrutiny_assert_greater_than_or_equal(a, b, "scrutiny_assert_greater_than_or_equal", __FILE__, __func__, __LINE__)
+	#define scrutiny_assert_less_than_or_equal(a, b) \
+	_scrutiny_assert_less_than_or_equal(a, b, "scrutiny_assert_less_thanor_equal", __FILE__, __func__, __LINE__)
+	#define scrutiny_assert_no_less_than(a, b) \
+	_scrutiny_assert_greater_than_or_equal(a, b, "scrutiny_assert_no_less_than", __FILE__, __func__, __LINE__)
+	#define scrutiny_assert_no_greater_than(a, b) \
+	_scrutiny_assert_less_than_or_equal(a, b, "scrutiny_assert_no_greater_than", __FILE__, __func__, __LINE__)
+#else
+	#define scrutiny_assert(a) \
+	_scrutiny_runtime_assert(a, __FILE__, __func__, __LINE__)
+	#define scrutiny_assert_equal(a, b) \
+	_scrutiny_runtime_assert_equal(a, b, __FILE__, __func__, __LINE__)
+	#define scrutiny_assert_not_equal(a, b) \
+	_scrutiny_runtime_assert_not_equal(a, b, __FILE__, __func__, __LINE__)
+	#define scrutiny_assert_greater_than(a, b) \
+	_scrutiny_runtime_assert_greater_than(a, b, __FILE__, __func__, __LINE__)
+	#define scrutiny_assert_less_than(a, b) \
+	_scrutiny_runtime_assert_less_than(a, b, __FILE__, __func__, __LINE__)
+	#define scrutiny_assert_greater_than_or_equal(a, b) \
+	_scrutiny_runtime_assert_greater_than_or_equal(a, b, "scrutiny_assert_greater_than_or_equal", __FILE__, __func__, __LINE__)
+	#define scrutiny_assert_less_than_or_equal(a, b) \
+	_scrutiny_runtime_assert_less_than_or_equal(a, b, "scrutiny_assert_less_thanor_equal", __FILE__, __func__, __LINE__)
+	#define scrutiny_assert_no_less_than(a, b) \
+	_scrutiny_runtime_assert_greater_than_or_equal(a, b, "scrutiny_assert_no_less_than", __FILE__, __func__, __LINE__)
+	#define scrutiny_assert_no_greater_than(a, b) \
+	_scrutiny_runtime_assert_less_than_or_equal(a, b, "scrutiny_assert_no_greater_than", __FILE__, __func__, __LINE__)
+#endif // SCRUTINY_DEBUG
 
 #define _scrutiny_assert(a, file, func, line) \
 if (!_scrutiny_record_assert(_scrutiny_test_run, (a), "scrutiny_assert", #a, file, func, line)) \
@@ -80,6 +109,21 @@ if (!_scrutiny_record_assert(_scrutiny_test_run, (a) >= (b), assert, #a ", " #b,
 #define _scrutiny_assert_less_than_or_equal(a, b, assert, file, func, line) \
 if (!_scrutiny_record_assert(_scrutiny_test_run, (a) <= (b), assert, #a ", " #b, file, func, line)) \
 	return
+
+#define _scrutiny_runtime_assert(a, file, func, line) \
+_scrutiny_abort_assert((a), "scrutiny_assert", #a, file, func, line)
+#define _scrutiny_runtime_assert_equal(a, b, file, func, line) \
+_scrutiny_abort_assert((a) == (b), "scrutiny_assert_equal", #a ", " #b, file, func, line)
+#define _scrutiny_runtime_assert_not_equal(a, b, file, func, line) \
+_scrutiny_abort_assert((a) != (b), "scrutiny_assert_not_equal", #a ", " #b, file, func, line)
+#define _scrutiny_runtime_assert_greater_than(a, b, file, func, line) \
+_scrutiny_abort_assert((a) > (b), "scrutiny_assert_greater_than", #a ", " #b, file, func, line)
+#define _scrutiny_runtime_assert_less_than(a, b, file, func, line) \
+_scrutiny_abort_assert((a) < (b), "scrutiny_assert_less_than", #a ", " #b, file, func, line)
+#define _scrutiny_runtime_assert_greater_than_or_equal(a, b, assert, file, func, line) \
+_scrutiny_abort_assert((a) >= (b), assert, #a ", " #b, file, func, line)
+#define _scrutiny_runtime_assert_less_than_or_equal(a, b, assert, file, func, line) \
+_scrutiny_abort_assert((a) <= (b), assert, #a ", " #b, file, func, line)
 
 typedef enum {
 	SCRUTINY_SUCCESS = true,
@@ -121,6 +165,8 @@ void scrutiny_run_tests_with_stats(scrutiny_test_t* tests);
  * functions like `sleep()`.
  */
 void scrutiny_run_benchmarks(scrutiny_benchmark_t* benchmarks, unsigned int passes);
+
+bool _scrutiny_abort_assert(bool succeeded, const char* assert, const char* condition, const char* file, const char* function, unsigned long line);
 
 bool _scrutiny_record_assert(scrutiny_test_run_t* test_run, bool succeeded, const char* assert, const char* condition, const char* file, const char* function, unsigned long line);
 
