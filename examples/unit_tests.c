@@ -1,5 +1,7 @@
 #include <stdlib.h>
 
+// This macro makes scrutiny's assertions not abort the program on failure and 
+// instead return from the current function.
 #define SCRUTINY_DEBUG
 
 #include "../scrutiny/scrutiny.h"
