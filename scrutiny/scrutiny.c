@@ -3,14 +3,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 #include "scrutiny.h"
-
-#define TEXT_NORMAL "\033[0m"
-#define TEXT_BOLD "\033[1m"
-#define TEXT_ITALIC "\033[3m"
-#define TEXT_GREEN "\033[0;32m"
-#define TEXT_BLUE "\033[0;34m"
-#define TEXT_RED "\033[0;31m"
 
 static void _scrutiny_run_tests(scrutiny_test_t* tests, bool with_stats) {
 	scrutiny_test_run_t test_run = {
@@ -70,6 +64,42 @@ void scrutiny_run_tests(scrutiny_test_t* tests) {
 
 void scrutiny_run_tests_with_stats(scrutiny_test_t* tests) {
 	_scrutiny_run_tests(tests, true);
+}
+
+void scrutiny_run_benchmarks(scrutiny_benchmark_t* benchmarks, unsigned int passes) {
+	scrutiny_bench_run_t bench_run = {
+		.current_function = NULL,
+		.current_proc_start = -1,
+		.current_proc_end = -1,
+	};
+
+	for (unsigned int i = 0; benchmarks[i]; i++) {
+		const char* name_prefix;
+		double cpu_total = 0;
+		double total = 0;
+		
+		for (unsigned int j = 0; j < passes; j++) {
+			bench_run.current_proc_end = -1;
+			bench_run.current_proc_start = clock();
+			gettimeofday(&bench_run.current_start, NULL);
+		
+			name_prefix = benchmarks[i](&bench_run);
+		
+			clock_t return_time = clock();
+			if (bench_run.current_proc_end < 0) {
+				gettimeofday(&bench_run.current_end, NULL);
+				bench_run.current_proc_end = return_time;
+			}
+
+			cpu_total += (double)(bench_run.current_proc_end - bench_run.current_proc_start) / CLOCKS_PER_SEC;
+			total += (double)(bench_run.current_end.tv_sec + bench_run.current_end.tv_usec / 1e+6) - (double)(bench_run.current_start.tv_sec + bench_run.current_start.tv_usec / 1e+6);
+		}
+
+		cpu_total /= passes;
+		total /= passes;
+		
+		printf("%s" TEXT_BLUE TEXT_BOLD "%s " TEXT_NORMAL "- " TEXT_GREEN "%f seconds (%f seconds CPU time)" TEXT_NORMAL "\n", name_prefix, bench_run.current_function, total, cpu_total);
+	}
 }
 
 bool _scrutiny_record_assert(scrutiny_test_run_t* test_run, bool succeeded, const char* assert, const char* condition, const char* file, const char* function, unsigned long line) {
