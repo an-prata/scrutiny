@@ -1,27 +1,22 @@
 #include "../scrutiny/scrutiny.h"
+#include <stdio.h>
 
-/*
- * Shows how you can use scrutiny's assertions as an alternative to the
- * standard library's during application runtime or debugging.
- */
+// This time we dont define the `SCRUTINY_DEBUG` function so that we can use
+// scrutiny's assertions during the runtime of our program.
 
 int main()
 {
 	int a = 8;
 	int b = 4;
 
-	scrutiny_assert_equal_int(a, b * 2);
+	scrutiny_assert_equal(a, b * 2);
 	printf("Passed One!\n");
-
-	/*
-	 * If you want to make runtime assertions like this after running unit tests
-	 * you will need to make a call to scrutiny_clear_results().
-	 */
 
 	int arr1[] = { 2, 4, 6, 8 };
 	int arr2[] = { 2, 4, 5, 7 };
 
-	scrutiny_assert_not_equal_array(arr1, arr2, sizeof(int), sizeof arr1);
-	scrutiny_assert_equal_int(arr1[2], arr2[2]);
+	for (unsigned int i = 0; i < sizeof(arr1) / sizeof(int); i++) {
+		scrutiny_assert_equal(arr1[i], arr2[i]);
+	}
 }
 

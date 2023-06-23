@@ -24,6 +24,7 @@ SCRUTINY_BENCHMARK(primes_to_n) {
     scrutiny_bench_return();
 }
 
+// This benchmark will take a long time but much of it will be idle.
 SCRUTINY_BENCHMARK(wait_1_sec) {
     sleep(1);
     scrutiny_bench_return();
@@ -38,6 +39,8 @@ int main()
         NULL
     };
 
+    // Scrutiny will output both the actual time and CPU time used when running
+    // a benchmark.
     scrutiny_run_benchmarks(benchmarks, 1);
 }
 
