@@ -1,7 +1,7 @@
 #include "../scrutiny/scrutiny.h"
 #include <stdio.h>
 
-// This time we dont define the `SCRUTINY_DEBUG` function so that we can use
+// This time we dont define the `SCRUTINY_DEBUG` macro so that we can use
 // scrutiny's assertions during the runtime of our program.
 
 int main()

@@ -40,7 +40,8 @@ int main()
     };
 
     // Scrutiny will output both the actual time and CPU time used when running
-    // a benchmark.
+    // a benchmark. Unlike when unit testing scrutiny will not exit the program
+    // here.
     scrutiny_run_benchmarks(benchmarks, 1);
 }
 
