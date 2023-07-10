@@ -33,7 +33,9 @@ int main() {
 
     scrutiny_run_tests(tests);
 
-    // Using this macro will print some extra info at the end of the test run
-    // for when you need that 100% passed dopamine.
+    // Using this function will print some extra info at the end of the test run
+    // for when you need that 100% passed dopamine. You cant use both in the
+    // same run since they exit the program for you with a value inicative of
+    // test success.
     // scrutiny_run_tests_with_stats(tests);
 }
