@@ -4,8 +4,7 @@
 // This time we dont define the `SCRUTINY_DEBUG` macro so that we can use
 // scrutiny's assertions during the runtime of our program.
 
-int main()
-{
+int main() {
 	int a = 8;
 	int b = 4;
 
