@@ -27,7 +27,7 @@ static void _scrutiny_run_tests(scrutiny_test_t* tests, bool with_stats) {
 			printf("(" TEXT_RED "x" TEXT_NORMAL ") test failed: " TEXT_BLUE TEXT_ITALIC "%s\n" TEXT_NORMAL, test_run.previous_function);
 		} else {
 			test_run.tests_passed++;
-			printf("(" TEXT_GREEN "" TEXT_NORMAL ") test passed: " TEXT_BLUE TEXT_ITALIC "%s\n" TEXT_NORMAL, test_run.previous_function);
+			printf("(" TEXT_GREEN "✓" TEXT_NORMAL ") test passed: " TEXT_BLUE TEXT_ITALIC "%s\n" TEXT_NORMAL, test_run.previous_function);
 		}
 	}
 
@@ -45,8 +45,8 @@ static void _scrutiny_run_tests(scrutiny_test_t* tests, bool with_stats) {
 	printf("\n\nscrutiny made %zu assertions from %zu tests\n", test_run.asserts_failed + test_run.asserts_passed, test_run.tests_failed + test_run.tests_passed);
 
 	if (test_run.asserts_passed > 0) {
-		printf("\n(" TEXT_GREEN "" TEXT_NORMAL ") %zu of %zu tests passed (%2.1f%%)\n", test_run.tests_passed, test_run.tests_failed + test_run.tests_passed, percent_tests_passed);
-        printf("(" TEXT_GREEN "" TEXT_NORMAL ") %zu of %zu assertions passed (%2.1f%%)\n", test_run.asserts_passed, test_run.asserts_failed + test_run.asserts_passed, percent_asserts_passed);
+		printf("\n(" TEXT_GREEN "✓" TEXT_NORMAL ") %zu of %zu tests passed (%2.1f%%)\n", test_run.tests_passed, test_run.tests_failed + test_run.tests_passed, percent_tests_passed);
+        printf("(" TEXT_GREEN "✓" TEXT_NORMAL ") %zu of %zu assertions passed (%2.1f%%)\n", test_run.asserts_passed, test_run.asserts_failed + test_run.asserts_passed, percent_asserts_passed);
 	}
 
 	if (test_run.asserts_failed > 0) {
